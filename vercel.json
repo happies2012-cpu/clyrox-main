@@ -38,17 +38,3 @@
   "devCommand": "npm run dev",
   "installCommand": "npm install"
 }
-
-{
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "all"
-        }
-      ]
-    }
-  ]
-}
