@@ -7,4 +7,9 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
+  server: {
+    https: false, // Explicitly disable HTTPS
+    host: '0.0.0.0',
+    port: 3000,
+  },
 });
