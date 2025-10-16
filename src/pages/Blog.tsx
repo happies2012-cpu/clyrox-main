@@ -3,10 +3,24 @@ import { Calendar, User, ArrowRight, Tag, Search } from 'lucide-react';
 import PageHero from '../components/PageHero';
 import AnimatedSection from '../components/AnimatedSection';
 import GlassCard from '../components/GlassCard';
-import { supabase, BlogPost } from '../lib/supabase';
 import { motion } from 'framer-motion';
 import EnhancedBlogCard from '../components/EnhancedBlogCard';
 import EnhancedLoadingSpinner from '../components/EnhancedLoadingSpinner';
+
+// Define the BlogPost interface locally
+interface BlogPost {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  author: string;
+  featured_image: string;
+  category: string;
+  tags: string[];
+  is_published: boolean;
+  published_at: string;
+}
 
 export default function Blog() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -26,18 +40,93 @@ export default function Blog() {
 
   const loadPosts = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('blog_posts')
-      .select('*')
-      .eq('is_published', true)
-      .order('published_at', { ascending: false });
-
-    if (error) {
-      console.error('Error loading posts:', error);
-    } else if (data) {
-      setPosts(data);
-    }
-    setLoading(false);
+    
+    // Simulate loading posts without Supabase
+    setTimeout(() => {
+      const mockPosts: BlogPost[] = [
+        {
+          id: '1',
+          slug: 'business-growth-strategies',
+          title: '10 Proven Business Growth Strategies for 2023',
+          excerpt: 'Discover the most effective strategies to accelerate your business growth in the current market landscape.',
+          content: '',
+          author: 'Sarah Johnson',
+          featured_image: 'https://images.pexels.com/photos/3184357/pexels-photo-3184357.jpeg?auto=compress&cs=tinysrgb&w=1920',
+          category: 'Business',
+          tags: ['growth', 'strategy', 'business'],
+          is_published: true,
+          published_at: '2023-06-15'
+        },
+        {
+          id: '2',
+          slug: 'digital-transformation',
+          title: 'Digital Transformation: A Complete Guide',
+          excerpt: 'Learn how to successfully navigate your organization through digital transformation with our comprehensive guide.',
+          content: '',
+          author: 'Michael Chen',
+          featured_image: 'https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=1920',
+          category: 'Technology',
+          tags: ['digital', 'transformation', 'innovation'],
+          is_published: true,
+          published_at: '2023-06-10'
+        },
+        {
+          id: '3',
+          slug: 'effective-leadership',
+          title: 'The 7 Habits of Highly Effective Leaders',
+          excerpt: 'Explore the key habits that distinguish exceptional leaders from the rest and how you can develop them.',
+          content: '',
+          author: 'Emma Rodriguez',
+          featured_image: 'https://images.pexels.com/photos/3184296/pexels-photo-3184296.jpeg?auto=compress&cs=tinysrgb&w=1920',
+          category: 'Leadership',
+          tags: ['leadership', 'management', 'development'],
+          is_published: true,
+          published_at: '2023-06-05'
+        },
+        {
+          id: '4',
+          slug: 'market-trends-2023',
+          title: 'Top Market Trends to Watch in 2023',
+          excerpt: 'Stay ahead of the competition by understanding the key market trends that will shape your industry this year.',
+          content: '',
+          author: 'David Wilson',
+          featured_image: 'https://images.pexels.com/photos/3184339/pexels-photo-3184339.jpeg?auto=compress&cs=tinysrgb&w=1920',
+          category: 'Market Analysis',
+          tags: ['trends', 'market', 'analysis'],
+          is_published: true,
+          published_at: '2023-05-28'
+        },
+        {
+          id: '5',
+          slug: 'remote-work-productivity',
+          title: 'Maximizing Productivity in Remote Work Environments',
+          excerpt: 'Discover practical tips and tools to boost productivity while working remotely or in hybrid environments.',
+          content: '',
+          author: 'Lisa Thompson',
+          featured_image: 'https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=1920',
+          category: 'Workplace',
+          tags: ['remote', 'productivity', 'work'],
+          is_published: true,
+          published_at: '2023-05-20'
+        },
+        {
+          id: '6',
+          slug: 'customer-retention',
+          title: 'The Ultimate Guide to Customer Retention',
+          excerpt: 'Learn proven techniques to keep your customers engaged and loyal to your brand for the long term.',
+          content: '',
+          author: 'Robert Kim',
+          featured_image: 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=1920',
+          category: 'Marketing',
+          tags: ['customer', 'retention', 'marketing'],
+          is_published: true,
+          published_at: '2023-05-12'
+        }
+      ];
+      
+      setPosts(mockPosts);
+      setLoading(false);
+    }, 1000);
   };
 
   const filteredPosts = useMemo(() => {

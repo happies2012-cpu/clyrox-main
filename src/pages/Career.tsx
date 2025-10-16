@@ -4,9 +4,22 @@ import PageHero from '../components/PageHero';
 import AnimatedSection from '../components/AnimatedSection';
 import GlassCard from '../components/GlassCard';
 import EnhancedCareerCard from '../components/EnhancedCareerCard';
-import { supabase, Career } from '../lib/supabase';
 import { motion } from 'framer-motion';
 import EnhancedLoadingSpinner from '../components/EnhancedLoadingSpinner';
+
+// Define the Career interface locally
+interface Career {
+  id: string;
+  title: string;
+  department: string;
+  location: string;
+  employment_type: string;
+  description: string;
+  requirements: string[];
+  responsibilities: string[];
+  salary_range?: string;
+  is_active: boolean;
+}
 
 export default function CareerPage() {
   const [careers, setCareers] = useState<Career[]>([]);
@@ -55,19 +68,148 @@ export default function CareerPage() {
 
   const loadCareers = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('careers')
-      .select('*')
-      .eq('is_active', true)
-      .order('created_at', { ascending: false });
-    if (data) {
-      setCareers(data);
-      setFilteredCareers(data);
-    }
-    if (error) {
-      console.error('Error loading careers:', error);
-    }
-    setLoading(false);
+    
+    // Simulate loading careers without Supabase
+    setTimeout(() => {
+      const mockCareers: Career[] = [
+        {
+          id: '1',
+          title: 'Senior Business Consultant',
+          department: 'Consulting',
+          location: 'New York, NY',
+          employment_type: 'Full-time',
+          description: 'We are looking for an experienced business consultant to join our team and help clients achieve their strategic goals.',
+          requirements: [
+            'MBA or advanced degree in business or related field',
+            '5+ years of consulting experience',
+            'Strong analytical and problem-solving skills',
+            'Excellent communication and presentation abilities'
+          ],
+          responsibilities: [
+            'Lead client engagements and deliver strategic recommendations',
+            'Conduct market research and competitive analysis',
+            'Develop and present client proposals',
+            'Mentor junior consultants and team members'
+          ],
+          salary_range: '$120,000 - $150,000',
+          is_active: true
+        },
+        {
+          id: '2',
+          title: 'HR Specialist',
+          department: 'Human Resources',
+          location: 'Los Angeles, CA',
+          employment_type: 'Full-time',
+          description: 'Join our HR team to support talent acquisition, employee relations, and organizational development initiatives.',
+          requirements: [
+            'Bachelor\'s degree in Human Resources or related field',
+            '3+ years of HR experience',
+            'PHR or SPHR certification preferred',
+            'Strong interpersonal and conflict resolution skills'
+          ],
+          responsibilities: [
+            'Manage full-cycle recruitment process',
+            'Administer employee benefits programs',
+            'Handle employee relations issues',
+            'Support performance management processes'
+          ],
+          salary_range: '$70,000 - $90,000',
+          is_active: true
+        },
+        {
+          id: '3',
+          title: 'Software Developer',
+          department: 'Technology',
+          location: 'San Francisco, CA',
+          employment_type: 'Full-time',
+          description: 'We are seeking a talented software developer to build innovative solutions for our clients and internal systems.',
+          requirements: [
+            'Bachelor\'s degree in Computer Science or related field',
+            '3+ years of experience with JavaScript/TypeScript',
+            'Experience with React and Node.js',
+            'Knowledge of cloud platforms (AWS, Azure, or GCP)'
+          ],
+          responsibilities: [
+            'Develop and maintain web applications',
+            'Collaborate with design and product teams',
+            'Write clean, testable code',
+            'Participate in code reviews and technical discussions'
+          ],
+          salary_range: '$100,000 - $130,000',
+          is_active: true
+        },
+        {
+          id: '4',
+          title: 'Marketing Manager',
+          department: 'Marketing',
+          location: 'Chicago, IL',
+          employment_type: 'Full-time',
+          description: 'Lead our marketing efforts to drive brand awareness, generate leads, and support business growth.',
+          requirements: [
+            'Bachelor\'s degree in Marketing or related field',
+            '5+ years of marketing experience',
+            'Proven track record in digital marketing',
+            'Experience with marketing automation tools'
+          ],
+          responsibilities: [
+            'Develop and execute marketing campaigns',
+            'Manage digital marketing channels',
+            'Analyze campaign performance and ROI',
+            'Coordinate with sales and product teams'
+          ],
+          salary_range: '$85,000 - $110,000',
+          is_active: true
+        },
+        {
+          id: '5',
+          title: 'Visa Specialist',
+          department: 'Immigration',
+          location: 'Washington, DC',
+          employment_type: 'Full-time',
+          description: 'Provide expert guidance on visa applications and immigration processes for our clients.',
+          requirements: [
+            'Bachelor\'s degree in Law, International Relations, or related field',
+            '2+ years of experience in immigration services',
+            'Knowledge of US immigration laws and regulations',
+            'Excellent attention to detail and organizational skills'
+          ],
+          responsibilities: [
+            'Prepare and submit visa applications',
+            'Communicate with government agencies',
+            'Advise clients on immigration options',
+            'Maintain accurate case documentation'
+          ],
+          salary_range: '$65,000 - $80,000',
+          is_active: true
+        },
+        {
+          id: '6',
+          title: 'UX Designer',
+          department: 'Design',
+          location: 'Remote',
+          employment_type: 'Full-time',
+          description: 'Create intuitive and engaging user experiences for our digital products and client projects.',
+          requirements: [
+            'Bachelor\'s degree in Design, HCI, or related field',
+            '3+ years of UX design experience',
+            'Proficiency with design tools (Figma, Sketch, Adobe XD)',
+            'Portfolio demonstrating design thinking and problem-solving'
+          ],
+          responsibilities: [
+            'Conduct user research and usability testing',
+            'Create wireframes, prototypes, and design specifications',
+            'Collaborate with development teams',
+            'Participate in design sprints and workshops'
+          ],
+          salary_range: '$90,000 - $115,000',
+          is_active: true
+        }
+      ];
+      
+      setCareers(mockCareers);
+      setFilteredCareers(mockCareers);
+      setLoading(false);
+    }, 1000);
   };
 
   return (

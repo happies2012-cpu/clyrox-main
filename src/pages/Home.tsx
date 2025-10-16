@@ -3,10 +3,23 @@ import { motion } from 'framer-motion';
 import { ArrowRight, CheckCircle, Target, Zap } from 'lucide-react';
 import AnimatedSection from '../components/AnimatedSection';
 import GlassCard from '../components/GlassCard';
-import { supabase, Service } from '../lib/supabase';
 import Testimonials from '../components/Testimonials';
 import LogoCloud from '../components/LogoCloud';
 import NewsletterSignup from '../components/NewsletterSignup';
+
+// Define the Service interface locally
+interface Service {
+  id: string;
+  slug: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  icon: string;
+  hero_image: string;
+  features: Array<{ title: string; description: string }>;
+  order_index: number;
+  is_active: boolean;
+}
 
 export default function Home() {
   const [services, setServices] = useState<Service[]>([]);
@@ -16,12 +29,47 @@ export default function Home() {
   }, []);
 
   const loadServices = async () => {
-    const { data } = await supabase
-      .from('services')
-      .select('*')
-      .eq('is_active', true)
-      .order('order_index');
-    if (data) setServices(data);
+    // Simulate loading services without Supabase
+    const mockServices: Service[] = [
+      {
+        id: '1',
+        slug: 'business-consulting',
+        title: 'Business Consulting',
+        subtitle: 'Strategic business solutions',
+        description: 'Our expert consultants provide comprehensive business strategy development, market analysis, and operational optimization to help your organization achieve sustainable growth and competitive advantage.',
+        icon: '',
+        hero_image: 'https://images.pexels.com/photos/3184325/pexels-photo-3184325.jpeg?auto=compress&cs=tinysrgb&w=1920',
+        features: [],
+        order_index: 1,
+        is_active: true
+      },
+      {
+        id: '2',
+        slug: 'employment-consulting',
+        title: 'Employment Consulting',
+        subtitle: 'Career and talent solutions',
+        description: 'We help professionals navigate their career paths and assist organizations in finding and retaining top talent through our comprehensive employment consulting services.',
+        icon: '',
+        hero_image: 'https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=1920',
+        features: [],
+        order_index: 2,
+        is_active: true
+      },
+      {
+        id: '3',
+        slug: 'visa-consulting',
+        title: 'Visa Consulting',
+        subtitle: 'Immigration and visa services',
+        description: 'Our specialized visa consultants provide expert guidance on immigration processes, visa applications, and compliance with international regulations to ensure smooth transitions.',
+        icon: '',
+        hero_image: 'https://images.pexels.com/photos/3184296/pexels-photo-3184296.jpeg?auto=compress&cs=tinysrgb&w=1920',
+        features: [],
+        order_index: 3,
+        is_active: true
+      }
+    ];
+    
+    setServices(mockServices);
   };
 
   return (
@@ -195,94 +243,6 @@ export default function Home() {
                 Learn More About Us
               </motion.a>
             </AnimatedSection>
-          </div>
-        </div>
-      </section>
-
-      <section className="relative py-24 px-6 bg-gradient-to-b from-slate-800 to-slate-900">
-        <div className="max-w-7xl mx-auto">
-          <AnimatedSection className="text-center mb-16">
-            <motion.h2 
-              className="text-4xl md:text-5xl font-bold text-white mb-6"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
-              Our Process
-            </motion.h2>
-            <motion.p 
-              className="text-xl text-white/70 max-w-3xl mx-auto"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-            >
-              A systematic methodology designed to deliver exceptional results
-            </motion.p>
-          </AnimatedSection>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: Target,
-                title: 'Discovery',
-                description: 'We start by understanding your goals, challenges, and vision',
-                image: 'https://images.pexels.com/photos/3184296/pexels-photo-3184296.jpeg?auto=compress&cs=tinysrgb&w=1200'
-              },
-              {
-                icon: Zap,
-                title: 'Strategy',
-                description: 'Develop a comprehensive plan tailored to your specific needs',
-                image: 'https://images.pexels.com/photos/3184339/pexels-photo-3184339.jpeg?auto=compress&cs=tinysrgb&w=1200'
-              },
-              {
-                icon: CheckCircle,
-                title: 'Execution',
-                description: 'Implement solutions with precision and ongoing support',
-                image: 'https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=1200'
-              },
-            ].map((step, index) => (
-              <AnimatedSection key={index} delay={index * 0.15}>
-                <motion.div
-                  whileHover={{ y: -10 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                >
-                  <GlassCard className="p-8 text-center overflow-hidden">
-                    <div className="overflow-hidden rounded-xl mb-6 -mx-8 -mt-8">
-                      <motion.img
-                        src={step.image}
-                        alt={step.title}
-                        className="w-full h-40 object-cover"
-                        whileHover={{ scale: 1.1 }}
-                        transition={{ duration: 0.5 }}
-                      />
-                    </div>
-                    <div className="backdrop-blur-xl bg-primary/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                      <step.icon className="w-10 h-10 text-primary" />
-                    </div>
-                    <motion.h3 
-                      className="text-2xl font-bold text-white mb-4"
-                      initial={{ opacity: 0, y: 10 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: 0.1 }}
-                    >
-                      {step.title}
-                    </motion.h3>
-                    <motion.p 
-                      className="text-white/70"
-                      initial={{ opacity: 0, y: 10 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: 0.2 }}
-                    >
-                      {step.description}
-                    </motion.p>
-                  </GlassCard>
-                </motion.div>
-              </AnimatedSection>
-            ))}
           </div>
         </div>
       </section>

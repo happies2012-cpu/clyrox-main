@@ -5,8 +5,21 @@ import PageHero from '../components/PageHero';
 import AnimatedSection from '../components/AnimatedSection';
 import GlassCard from '../components/GlassCard';
 import EnhancedLoadingSpinner from '../components/EnhancedLoadingSpinner';
-import { supabase, Service } from '../lib/supabase';
 import { motion } from 'framer-motion';
+
+// Define the Service interface locally
+interface Service {
+  id: string;
+  slug: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  icon: string;
+  hero_image: string;
+  features: Array<{ title: string; description: string }>;
+  order_index: number;
+  is_active: boolean;
+}
 
 export default function ServiceDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -16,25 +29,78 @@ export default function ServiceDetail() {
 
   const loadService = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from('services')
-      .select('*')
-      .eq('slug', slug)
-      .eq('is_active', true)
-      .maybeSingle();
-    if (data) setService(data);
-    setLoading(false);
+    
+    // Simulate loading service without Supabase
+    setTimeout(() => {
+      // Mock services data
+      const mockServices: Service[] = [
+        {
+          id: '1',
+          slug: 'business-consulting',
+          title: 'Business Consulting',
+          subtitle: 'Strategic business solutions',
+          description: 'Our expert consultants provide comprehensive business strategy development, market analysis, and operational optimization to help your organization achieve sustainable growth and competitive advantage. We work closely with your team to identify opportunities, address challenges, and implement solutions that drive measurable results. Our approach combines industry expertise with innovative thinking to deliver tailored strategies that align with your unique business objectives.',
+          icon: '',
+          hero_image: 'https://images.pexels.com/photos/3184325/pexels-photo-3184325.jpeg?auto=compress&cs=tinysrgb&w=1920',
+          features: [
+            { title: 'Strategy Development', description: 'Comprehensive business strategy formulation tailored to your organization' },
+            { title: 'Market Analysis', description: 'In-depth market research and competitive intelligence' },
+            { title: 'Operational Efficiency', description: 'Process optimization and efficiency improvements' },
+            { title: 'Financial Planning', description: 'Strategic financial planning and analysis' }
+          ],
+          order_index: 1,
+          is_active: true
+        },
+        {
+          id: '2',
+          slug: 'employment-consulting',
+          title: 'Employment Consulting',
+          subtitle: 'Career and talent solutions',
+          description: 'We help professionals navigate their career paths and assist organizations in finding and retaining top talent through our comprehensive employment consulting services. Our team of experts provides personalized guidance for career development while helping businesses build high-performing teams through strategic recruitment and retention strategies.',
+          icon: '',
+          hero_image: 'https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=1920',
+          features: [
+            { title: 'Career Coaching', description: 'Personalized career development coaching and guidance' },
+            { title: 'Talent Acquisition', description: 'Strategic recruitment and hiring solutions' },
+            { title: 'Skills Assessment', description: 'Comprehensive skills evaluation and development planning' },
+            { title: 'Job Placement', description: 'Effective job matching and placement services' }
+          ],
+          order_index: 2,
+          is_active: true
+        },
+        {
+          id: '3',
+          slug: 'visa-consulting',
+          title: 'Visa Consulting',
+          subtitle: 'Immigration and visa services',
+          description: 'Our specialized visa consultants provide expert guidance on immigration processes, visa applications, and compliance with international regulations to ensure smooth transitions. We understand the complexities of global mobility and offer comprehensive support for individuals and businesses navigating visa requirements.',
+          icon: '',
+          hero_image: 'https://images.pexels.com/photos/3184296/pexels-photo-3184296.jpeg?auto=compress&cs=tinysrgb&w=1920',
+          features: [
+            { title: 'Visa Applications', description: 'Complete visa application assistance and support' },
+            { title: 'Immigration Law', description: 'Expert immigration law guidance and compliance' },
+            { title: 'Document Preparation', description: 'Comprehensive document preparation services' },
+            { title: 'Compliance Support', description: 'Regulatory compliance assistance and monitoring' }
+          ],
+          order_index: 3,
+          is_active: true
+        }
+      ];
+      
+      // Find the service by slug
+      const foundService = mockServices.find(s => s.slug === slug) || null;
+      setService(foundService);
+      
+      // Set related services (all except the current one)
+      const related = mockServices.filter(s => s.slug !== slug).slice(0, 3);
+      setRelatedServices(related);
+      
+      setLoading(false);
+    }, 1000);
   }, [slug]);
 
   const loadRelatedServices = useCallback(async () => {
-    const { data } = await supabase
-      .from('services')
-      .select('*')
-      .neq('slug', slug)
-      .eq('is_active', true)
-      .order('order_index')
-      .limit(3);
-    if (data) setRelatedServices(data);
+    // This is now handled in loadService
   }, [slug]);
 
   useEffect(() => {
@@ -198,52 +264,31 @@ export default function ServiceDetail() {
                   },
                   {
                     step: '02',
-                    title: 'Strategic Planning',
-                    description: 'Develop a customized strategy tailored to your goals',
+                    title: 'Analysis & Strategy',
+                    description: 'Our team conducts thorough analysis and develops a customized strategy',
                   },
                   {
                     step: '03',
                     title: 'Implementation',
-                    description: 'Execute the plan with precision and attention to detail',
+                    description: 'We execute the plan with precision and ongoing support',
                   },
                   {
                     step: '04',
-                    title: 'Ongoing Support',
-                    description: 'Provide continuous support to ensure long-term success',
+                    title: 'Review & Optimize',
+                    description: 'We review results and optimize for continued success',
                   },
                 ].map((item, index) => (
-                  <motion.div 
-                    key={index} 
-                    className="flex gap-6"
-                    initial={{ opacity: 0, x: 20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    <div className="backdrop-blur-xl bg-white/10 w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <span className="text-2xl font-bold text-white">{item.step}</span>
+                  <div key={index} className="flex gap-6">
+                    <div className="flex-shrink-0">
+                      <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
+                        <span className="text-primary font-bold">{item.step}</span>
+                      </div>
                     </div>
                     <div>
-                      <motion.h3 
-                        className="text-xl font-bold text-white mb-2"
-                        initial={{ opacity: 0, y: 10 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.1 }}
-                      >
-                        {item.title}
-                      </motion.h3>
-                      <motion.p 
-                        className="text-white/70"
-                        initial={{ opacity: 0, y: 10 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.2 }}
-                      >
-                        {item.description}
-                      </motion.p>
+                      <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
+                      <p className="text-white/70">{item.description}</p>
                     </div>
-                  </motion.div>
+                  </div>
                 ))}
               </motion.div>
             </AnimatedSection>
@@ -271,48 +316,23 @@ export default function ServiceDetail() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: 0.1 }}
               >
-                Explore our other offerings
+                Explore other services that might interest you
               </motion.p>
             </AnimatedSection>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {relatedServices.map((relatedService, index) => (
                 <AnimatedSection key={relatedService.id} delay={index * 0.1}>
                   <motion.div
-                    whileHover={{ y: -10, scale: 1.02 }}
+                    whileHover={{ y: -5 }}
                     transition={{ type: "spring", stiffness: 300 }}
                   >
-                    <GlassCard className="p-8 h-full flex flex-col overflow-hidden">
-                      <div className="overflow-hidden rounded-xl mb-6 -mx-8 -mt-8">
-                        <motion.img
-                          src={relatedService.hero_image}
-                          alt={relatedService.title}
-                          className="w-full h-40 object-cover"
-                          whileHover={{ scale: 1.1 }}
-                          transition={{ duration: 0.5 }}
-                        />
-                      </div>
-                      <motion.h3 
-                        className="text-2xl font-bold text-white mb-3"
-                        initial={{ opacity: 0, y: 10 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.1 }}
-                      >
-                        {relatedService.title}
-                      </motion.h3>
-                      <motion.p 
-                        className="text-white/70 mb-6 flex-grow"
-                        initial={{ opacity: 0, y: 10 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.2 }}
-                      >
-                        {relatedService.subtitle}
-                      </motion.p>
+                    <GlassCard className="p-6">
+                      <h3 className="text-xl font-bold text-white mb-3">{relatedService.title}</h3>
+                      <p className="text-white/70 mb-4">{relatedService.subtitle}</p>
                       <motion.a
                         href={`/services/${relatedService.slug}`}
-                        className="inline-flex items-center gap-2 text-white hover:gap-4 transition-all"
+                        className="inline-flex items-center gap-2 text-primary-light hover:gap-4 transition-all font-semibold"
                         whileHover={{ x: 5 }}
                         whileTap={{ scale: 0.95 }}
                       >
@@ -346,7 +366,7 @@ export default function ServiceDetail() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.1 }}
             >
-              Let's discuss how {service.title.toLowerCase()} can benefit your organization
+              Contact us today to discuss how we can help you achieve your business goals.
             </motion.p>
             <motion.a
               href="/contact"
@@ -358,7 +378,7 @@ export default function ServiceDetail() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              Contact Us Today
+              Contact Us
             </motion.a>
           </AnimatedSection>
         </div>

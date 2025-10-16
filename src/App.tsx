@@ -35,8 +35,6 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import { AuthProvider } from './contexts/AuthContext';
 import { UserPreferencesProvider } from './contexts/UserPreferencesContext';
-import ProtectedRoute from './components/ProtectedRoute';
-import AdminRoute from './components/AdminRoute';
 import ToasterProvider from './components/ToasterProvider';
 
 function App() {
@@ -69,14 +67,7 @@ function App() {
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="/terms-of-service" element={<TermsOfService />} />
 
-                <Route
-                  path="/admin"
-                  element={
-                    <AdminRoute>
-                      <AdminLayout />
-                    </AdminRoute>
-                  }
-                >
+                <Route path="/admin" element={<AdminLayout />}>
                   <Route index element={<AdminDashboard />} />
                   <Route path="dashboard" element={<AdminDashboard />} />
                   <Route path="services" element={<ServicesManager />} />
@@ -96,14 +87,7 @@ function App() {
                   <Route path="users" element={<UserManagement />} />
                 </Route>
 
-                <Route
-                  path="/dashboard"
-                  element={
-                    <ProtectedRoute>
-                      <Dashboard />
-                    </ProtectedRoute>
-                  }
-                >
+                <Route path="/dashboard" element={<Dashboard />}>
                   <Route index element={<Projects />} />
                   <Route path="projects" element={<Projects />} />
                   <Route path="analytics" element={<Analytics />} />

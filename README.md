@@ -18,7 +18,7 @@ A comprehensive business consulting platform with enhanced UI animations and rea
 - **Frontend**: React with TypeScript
 - **Styling**: Tailwind CSS
 - **Animations**: Framer Motion
-- **Backend**: Supabase (Authentication, Database, Storage)
+- **Backend**: Mock data for local development
 - **Routing**: React Router
 - **Build Tool**: Vite
 - **UI Components**: Radix UI, Lucide React Icons
@@ -46,10 +46,9 @@ A comprehensive business consulting platform with enhanced UI animations and rea
    npm install
    ```
 
-4. Create a `.env` file in the root directory with your Supabase credentials:
+4. Create a `.env` file in the root directory (optional):
    ```env
-   VITE_SUPABASE_URL=your_supabase_url
-   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   # No Supabase credentials needed as the app uses mock data
    ```
 
 5. Start the development server:

@@ -1,136 +1,174 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { supabase, Testimonial } from '../../lib/supabase';
-import { Plus, Edit, Trash2, Eye, EyeOff, Star } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Plus, Edit, Trash2, Star } from 'lucide-react';
 import toast from 'react-hot-toast';
+import GlassCard from '../../components/GlassCard';
+import AnimatedSection from '../../components/AnimatedSection';
 import { motion } from 'framer-motion';
 
+// Define the Testimonial interface
+interface Testimonial {
+  id: string;
+  name: string;
+  role: string;
+  company: string;
+  content: string;
+  avatar_url: string;
+  rating: number;
+  is_featured: boolean;
+}
+
 export default function TestimonialsManager() {
-  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
-
-  useEffect(() => {
-    loadTestimonials();
-  }, []);
-
-  const loadTestimonials = async () => {
-    const { data } = await supabase.from('testimonials').select('*').order('created_at', { ascending: false });
-    if (data) setTestimonials(data);
-  };
+  const navigate = useNavigate();
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([
+    {
+      id: '1',
+      name: 'Alex Johnson',
+      role: 'CEO',
+      company: 'Tech Corp',
+      content: 'Clyrox delivered an amazing website for our company. Highly recommended!',
+      avatar_url: '/placeholder-avatar.jpg',
+      rating: 5,
+      is_featured: true
+    }
+  ]);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const handleDelete = async (id: string) => {
-    // Automatically confirm deletion instead of prompting user
-    const { error } = await supabase.from('testimonials').delete().eq('id', id);
-    if (error) {
-      toast.error('Error deleting testimonial: ' + error.message);
-    } else {
-      toast.success('Testimonial deleted successfully');
-      loadTestimonials();
-    }
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Remove the testimonial from state
+    setTestimonials(testimonials.filter(testimonial => testimonial.id !== id));
+    toast.success('Testimonial deleted successfully');
+  };
+
+  const filteredTestimonials = testimonials.filter(testimonial => 
+    testimonial.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    testimonial.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    testimonial.content.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const renderStars = (rating: number) => {
+    return (
+      <div className="flex">
+        {[...Array(5)].map((_, i) => (
+          <Star
+            key={i}
+            className={`w-4 h-4 ${i < rating ? 'text-yellow-400 fill-current' : 'text-white/30'}`}
+          />
+        ))}
+      </div>
+    );
   };
 
   return (
     <div>
-      <motion.div 
-        className="flex justify-between items-center mb-6"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <motion.h1 
           className="text-3xl font-bold text-white"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
+          transition={{ duration: 0.5 }}
         >
-          Manage Testimonials
+          Testimonials
         </motion.h1>
         <motion.div
-          whileHover={{ scale: 1.05, y: -2 }}
-          whileTap={{ scale: 0.95 }}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
         >
-          <Link
-            to="/admin/testimonials/new"
-            className="inline-flex items-center gap-2 bg-white text-slate-900 px-4 py-2 rounded-lg font-semibold hover:bg-white/90 transition-all"
+          <button
+            onClick={() => navigate('/admin/testimonials/new')}
+            className="flex items-center gap-2 bg-primary hover:bg-primary-dark text-white font-semibold py-2 px-4 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-primary/50"
           >
             <Plus className="w-5 h-5" />
-            Add Testimonial
-          </Link>
+            Add New Testimonial
+          </button>
         </motion.div>
-      </motion.div>
+      </div>
 
-      <motion.div 
-        className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg overflow-hidden"
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
+        className="mb-6"
       >
-        <table className="w-full text-left text-white/80">
-          <thead className="bg-white/10">
-            <tr>
-              <th className="p-4">Name</th>
-              <th className="p-4">Rating</th>
-              <th className="p-4">Status</th>
-              <th className="p-4">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {testimonials.map((testimonial, index) => (
-              <motion.tr 
-                key={testimonial.id} 
-                className="border-b border-white/10 last:border-b-0"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.1 }}
-                whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
-              >
-                <td className="p-4">{testimonial.name}</td>
-                <td className="p-4 flex items-center gap-1">
-                  {testimonial.rating} <Star className="w-4 h-4 text-primary-light" />
-                </td>
-                <td className="p-4">
-                  <motion.span
-                    className={`inline-flex items-center gap-2 px-2 py-1 rounded-full text-xs ${
-                      testimonial.is_active
-                        ? 'bg-emerald-500/20 text-emerald-300'
-                        : 'bg-slate-500/20 text-slate-300'
-                    }`}
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                  >
-                    {testimonial.is_active ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
-                    {testimonial.is_active ? 'Active' : 'Inactive'}
-                  </motion.span>
-                </td>
-                <td className="p-4 flex gap-2">
-                  <motion.div
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                  >
-                    <Link to={`/admin/testimonials/edit/${testimonial.id}`}>
-                      <button className="p-2 bg-white/10 hover:bg-white/20 rounded-md">
-                        <Edit className="w-4 h-4" />
-                      </button>
-                    </Link>
-                  </motion.div>
-                  <motion.div
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                  >
-                    <button
-                      onClick={() => handleDelete(testimonial.id)}
-                      className="p-2 bg-red-500/20 hover:bg-red-500/30 rounded-md"
-                    >
-                      <Trash2 className="w-4 h-4 text-red-300" />
-                    </button>
-                  </motion.div>
-                </td>
-              </motion.tr>
-            ))}
-          </tbody>
-        </table>
+        <input
+          type="text"
+          placeholder="Search testimonials..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full bg-white/10 border border-white/20 text-white p-3 rounded-lg focus:outline-none focus:border-white/40 transition-all"
+        />
       </motion.div>
+
+      {filteredTestimonials.length === 0 ? (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <GlassCard className="p-8 text-center">
+            <p className="text-xl text-white/70">No testimonials found.</p>
+            <button
+              onClick={() => navigate('/admin/testimonials/new')}
+              className="mt-4 bg-primary hover:bg-primary-dark text-white font-semibold py-2 px-4 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-primary/50"
+            >
+              Create Your First Testimonial
+            </button>
+          </GlassCard>
+        </motion.div>
+      ) : (
+        <div className="space-y-6">
+          {filteredTestimonials.map((testimonial, index) => (
+            <AnimatedSection key={testimonial.id} delay={index * 0.05}>
+              <motion.div
+                whileHover={{ y: -5 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <GlassCard className="p-6">
+                  <div className="flex flex-col md:flex-row md:items-start gap-4">
+                    <div className="flex-1">
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
+                        <h2 className="text-xl font-bold text-white">{testimonial.name}</h2>
+                        {testimonial.is_featured && (
+                          <span className="bg-yellow-500/20 text-yellow-300 text-xs font-semibold px-2 py-1 rounded">
+                            Featured
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-primary-light font-semibold mb-2">
+                        {testimonial.role}, {testimonial.company}
+                      </p>
+                      <div className="mb-3">
+                        {renderStars(testimonial.rating)}
+                      </div>
+                      <p className="text-white/70 italic mb-3">"{testimonial.content}"</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => navigate(`/admin/testimonials/edit/${testimonial.id}`)}
+                        className="p-2 bg-white/10 hover:bg-white/20 rounded-md transition-colors"
+                        title="Edit"
+                      >
+                        <Edit className="w-4 h-4 text-white/70" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(testimonial.id)}
+                        className="p-2 bg-red-500/20 hover:bg-red-500/30 rounded-md transition-colors"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-4 h-4 text-red-300" />
+                      </button>
+                    </div>
+                  </div>
+                </GlassCard>
+              </motion.div>
+            </AnimatedSection>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

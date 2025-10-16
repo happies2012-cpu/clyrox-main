@@ -14,8 +14,57 @@ import {
 } from 'lucide-react';
 import AnimatedSection from '../../components/AnimatedSection';
 import GlassCard from '../../components/GlassCard';
-import { supabase, ContactSubmission, BlogPost, Service, Career } from '../../lib/supabase';
 import { Link } from 'react-router-dom';
+
+interface ContactSubmission {
+  id: string;
+  created_at: string;
+  name: string;
+  email: string;
+  phone?: string;
+  service_interest?: string;
+  message: string;
+}
+
+interface BlogPost {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  author: string;
+  featured_image: string;
+  category: string;
+  tags: string[];
+  is_published: boolean;
+  published_at: string;
+}
+
+interface Service {
+  id: string;
+  slug: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  icon: string;
+  hero_image: string;
+  features: Array<{ title: string; description: string }>;
+  order_index: number;
+  is_active: boolean;
+}
+
+interface Career {
+  id: string;
+  title: string;
+  department: string;
+  location: string;
+  employment_type: string;
+  description: string;
+  requirements: string[];
+  responsibilities: string[];
+  salary_range?: string;
+  is_active: boolean;
+}
 
 interface AnalyticsData {
   totalServices: number;
@@ -53,27 +102,6 @@ export default function AdminDashboard() {
     setLoading(true);
     
     try {
-      // Load all data in parallel
-      const [
-        services, 
-        blogPosts, 
-        careers, 
-        contactSubmissions, 
-        recentSubmissionsData, 
-        recentPostsData,
-        activeServicesData,
-        activeCareersData
-      ] = await Promise.all([
-        supabase.from('services').select('*', { count: 'exact', head: true }),
-        supabase.from('blog_posts').select('*', { count: 'exact', head: true }),
-        supabase.from('careers').select('*', { count: 'exact', head: true }),
-        supabase.from('contact_submissions').select('*', { count: 'exact', head: true }),
-        supabase.from('contact_submissions').select('*').order('created_at', { ascending: false }).limit(5),
-        supabase.from('blog_posts').select('*').order('published_at', { ascending: false }).limit(5),
-        supabase.from('services').select('*').eq('is_active', true).limit(5),
-        supabase.from('careers').select('*').eq('is_active', true).limit(5),
-      ]);
-
       // Simulate analytics data
       const monthlySubmissions = [
         { month: 'Jan', count: 12 },
@@ -92,17 +120,50 @@ export default function AdminDashboard() {
         { service: 'Staffing Services', count: 10 },
       ];
 
+      // Mock data for the dashboard
+      const recentSubmissions: ContactSubmission[] = [
+        { id: '1', created_at: '2023-06-15', name: 'John Doe', email: 'john@example.com', message: 'Interested in services' },
+        { id: '2', created_at: '2023-06-14', name: 'Jane Smith', email: 'jane@example.com', message: 'Job inquiry' },
+        { id: '3', created_at: '2023-06-13', name: 'Bob Johnson', email: 'bob@example.com', message: 'General question' },
+        { id: '4', created_at: '2023-06-12', name: 'Alice Brown', email: 'alice@example.com', message: 'Service consultation' },
+        { id: '5', created_at: '2023-06-11', name: 'Charlie Wilson', email: 'charlie@example.com', message: 'Career opportunity' },
+      ];
+
+      const recentPosts: BlogPost[] = [
+        { id: '1', slug: 'business-growth-strategies', title: 'Business Growth Strategies', excerpt: 'Learn how to grow your business effectively', content: '', author: 'Admin', featured_image: '', category: 'Business', tags: [], is_published: true, published_at: '2023-06-10' },
+        { id: '2', slug: 'employment-trends', title: 'Employment Trends', excerpt: 'Latest trends in the job market', content: '', author: 'Admin', featured_image: '', category: 'Employment', tags: [], is_published: true, published_at: '2023-06-09' },
+        { id: '3', slug: 'visa-updates', title: 'Visa Updates', excerpt: 'Recent changes in visa regulations', content: '', author: 'Admin', featured_image: '', category: 'Visa', tags: [], is_published: true, published_at: '2023-06-08' },
+        { id: '4', slug: 'digital-innovation', title: 'Digital Innovation', excerpt: 'How technology is changing business', content: '', author: 'Admin', featured_image: '', category: 'Technology', tags: [], is_published: true, published_at: '2023-06-07' },
+        { id: '5', slug: 'market-analysis', title: 'Market Analysis', excerpt: 'Analysis of current market conditions', content: '', author: 'Admin', featured_image: '', category: 'Analysis', tags: [], is_published: true, published_at: '2023-06-06' },
+      ];
+
+      const activeServices: Service[] = [
+        { id: '1', slug: 'business-consulting', title: 'Business Consulting', subtitle: 'Strategic business solutions', description: 'Comprehensive business consulting services', icon: '', hero_image: '', features: [], order_index: 1, is_active: true },
+        { id: '2', slug: 'employment-consulting', title: 'Employment Consulting', subtitle: 'Career and job placement', description: 'Expert employment consulting services', icon: '', hero_image: '', features: [], order_index: 2, is_active: true },
+        { id: '3', slug: 'visa-consulting', title: 'Visa Consulting', subtitle: 'Immigration and visa assistance', description: 'Professional visa consulting services', icon: '', hero_image: '', features: [], order_index: 3, is_active: true },
+        { id: '4', slug: 'design-development', title: 'Design & Development', subtitle: 'Creative and technical solutions', description: 'Innovative design and development services', icon: '', hero_image: '', features: [], order_index: 4, is_active: true },
+        { id: '5', slug: 'staffing-services', title: 'Staffing Services', subtitle: 'Talent acquisition and management', description: 'Comprehensive staffing solutions', icon: '', hero_image: '', features: [], order_index: 5, is_active: true },
+      ];
+
+      const activeCareers: Career[] = [
+        { id: '1', title: 'Business Consultant', department: 'Consulting', location: 'New York', employment_type: 'Full-time', description: 'Provide business consulting services', requirements: [], responsibilities: [], is_active: true },
+        { id: '2', title: 'HR Specialist', department: 'Human Resources', location: 'Los Angeles', employment_type: 'Full-time', description: 'Manage human resources operations', requirements: [], responsibilities: [], is_active: true },
+        { id: '3', title: 'Software Developer', department: 'Technology', location: 'San Francisco', employment_type: 'Full-time', description: 'Develop software solutions', requirements: [], responsibilities: [], is_active: true },
+        { id: '4', title: 'Marketing Manager', department: 'Marketing', location: 'Chicago', employment_type: 'Full-time', description: 'Lead marketing campaigns', requirements: [], responsibilities: [], is_active: true },
+        { id: '5', title: 'Visa Specialist', department: 'Immigration', location: 'Washington DC', employment_type: 'Full-time', description: 'Assist with visa applications', requirements: [], responsibilities: [], is_active: true },
+      ];
+
       setAnalytics({
-        totalServices: services.count || 0,
-        totalBlogPosts: blogPosts.count || 0,
-        totalCareers: careers.count || 0,
-        totalContactSubmissions: contactSubmissions.count || 0,
+        totalServices: 12,
+        totalBlogPosts: 24,
+        totalCareers: 8,
+        totalContactSubmissions: 42,
         monthlySubmissions,
         serviceDistribution,
-        recentSubmissions: recentSubmissionsData.data || [],
-        recentPosts: recentPostsData.data || [],
-        activeServices: activeServicesData.data || [],
-        activeCareers: activeCareersData.data || [],
+        recentSubmissions,
+        recentPosts,
+        activeServices,
+        activeCareers,
       });
     } catch (error) {
       console.error('Error loading dashboard data:', error);

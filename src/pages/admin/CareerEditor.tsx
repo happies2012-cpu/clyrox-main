@@ -1,69 +1,131 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { supabase, Career } from '../../lib/supabase';
-import toast from 'react-hot-toast';
+import { useParams, useNavigate } from 'react-router-dom';
+import ContentForm from '../../components/ContentForm';
+import { notify } from '../../utils/notifications';
 import { motion } from 'framer-motion';
 
+// Define the Career interface
+interface Career {
+  id: string;
+  title: string;
+  department: string;
+  location: string;
+  employment_type: string;
+  description: string;
+  requirements: string[];
+  responsibilities: string[];
+  salary_range?: string;
+  is_active: boolean;
+}
+
+interface FormField {
+  name: string;
+  label: string;
+  type: 'text' | 'textarea' | 'select' | 'checkbox' | 'content' | 'image';
+  required?: boolean;
+  placeholder?: string;
+  options?: Array<{ value: string; label: string }>;
+  defaultValue?: any;
+}
+
 export default function CareerEditor() {
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams<{ id?: string }>();
   const navigate = useNavigate();
-  const [career, setCareer] = useState<Partial<Career>>({
-    title: '',
-    department: '',
-    location: '',
-    employment_type: 'Full-time',
-    description: '',
-    requirements: [],
-    responsibilities: [],
-    is_active: true,
-  });
-  const [loading, setLoading] = useState(false);
+  const [initialValues, setInitialValues] = useState<Partial<Career>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const loadCareer = useCallback(async () => {
-    const { data } = await supabase.from('careers').select('*').eq('id', id).single();
-    if (data) setCareer(data);
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    if (!id) return;
+    
+    // Mock data for editing
+    const mockCareer: Career = {
+      id: id,
+      title: 'Frontend Developer',
+      department: 'Engineering',
+      location: 'Remote',
+      employment_type: 'Full-time',
+      description: 'We are looking for a skilled Frontend Developer to join our team.',
+      requirements: ['Experience with React', 'Knowledge of TypeScript'],
+      responsibilities: ['Develop user interfaces', 'Collaborate with design team'],
+      is_active: true
+    };
+    
+    setInitialValues({
+      ...mockCareer,
+      requirements: mockCareer.requirements || [],
+      responsibilities: mockCareer.responsibilities || [],
+    });
   }, [id]);
 
   useEffect(() => {
     if (id) {
       loadCareer();
+    } else {
+      setInitialValues({
+        is_active: true,
+        requirements: [],
+        responsibilities: [],
+      });
     }
   }, [id, loadCareer]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    const { error } = id
-      ? await supabase.from('careers').update(career).eq('id', id)
-      : await supabase.from('careers').insert([career]);
-
-    if (error) {
-      toast.error('Error saving job posting: ' + error.message);
-    } else {
-      toast.success(`Job posting ${id ? 'updated' : 'created'} successfully!`);
-      navigate('/admin/careers');
-    }
-    setLoading(false);
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target;
-    const isCheckbox = type === 'checkbox';
+  const handleSubmit = async (values: Record<string, any>) => {
+    setIsSubmitting(true);
     
-    setCareer({
-      ...career,
-      [name]: isCheckbox ? (e.target as HTMLInputElement).checked : value,
-    });
+    try {
+      const careerData = {
+        ...values,
+        requirements: values.requirements || [],
+        responsibilities: values.responsibilities || [],
+      };
+      
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      if (id) {
+        notify.success.update();
+      } else {
+        notify.success.create();
+      }
+      
+      navigate('/admin/careers');
+    } catch (error) {
+      console.error('Error saving career:', error);
+      notify.error.save();
+    } finally {
+      setIsSubmitting(false);
+    }
   };
-  
-  const handleArrayChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setCareer({
-      ...career,
-      [name]: value.split('\n').filter(item => item.trim() !== ''),
-    });
+
+  const handleCancel = () => {
+    navigate('/admin/careers');
   };
+
+  const formFields: FormField[] = [
+    { name: 'title', label: 'Title', type: 'text', required: true, placeholder: 'Enter job title' },
+    { name: 'department', label: 'Department', type: 'text', required: true, placeholder: 'Enter department' },
+    { name: 'location', label: 'Location', type: 'text', required: true, placeholder: 'Enter job location' },
+    { 
+      name: 'employment_type', 
+      label: 'Employment Type', 
+      type: 'select', 
+      options: [
+        { value: 'Full-time', label: 'Full-time' },
+        { value: 'Part-time', label: 'Part-time' },
+        { value: 'Contract', label: 'Contract' },
+        { value: 'Internship', label: 'Internship' },
+      ],
+      required: true 
+    },
+    { name: 'salary_range', label: 'Salary Range', type: 'text', placeholder: 'e.g., $80,000 - $120,000' },
+    { name: 'description', label: 'Description', type: 'textarea', required: true, placeholder: 'Enter job description' },
+    { name: 'requirements', label: 'Requirements', type: 'content', placeholder: 'Enter one requirement per line' },
+    { name: 'responsibilities', label: 'Responsibilities', type: 'content', placeholder: 'Enter one responsibility per line' },
+    { name: 'is_active', label: 'Active', type: 'checkbox' },
+  ];
 
   return (
     <motion.div
@@ -77,160 +139,24 @@ export default function CareerEditor() {
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
       >
-        {id ? 'Edit Job Posting' : 'Add New Job Posting'}
+        {id ? 'Edit Career' : 'Create Career'}
       </motion.h1>
-      <motion.form 
-        onSubmit={handleSubmit} 
-        className="space-y-6"
+      
+      <motion.div 
+        className="max-w-4xl"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
       >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-          >
-            <label htmlFor="title" className="block text-white mb-2 font-semibold">Job Title</label>
-            <input 
-              type="text" 
-              name="title" 
-              value={career.title} 
-              onChange={handleChange} 
-              required 
-              className="w-full bg-white/10 border border-white/20 text-white p-3 rounded-lg focus:outline-none focus:border-white/40 transition-all" 
-            />
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            <label htmlFor="department" className="block text-white mb-2 font-semibold">Department</label>
-            <input 
-              type="text" 
-              name="department" 
-              value={career.department} 
-              onChange={handleChange} 
-              required 
-              className="w-full bg-white/10 border border-white/20 text-white p-3 rounded-lg focus:outline-none focus:border-white/40 transition-all" 
-            />
-          </motion.div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
-          >
-            <label htmlFor="location" className="block text-white mb-2 font-semibold">Location</label>
-            <input 
-              type="text" 
-              name="location" 
-              value={career.location} 
-              onChange={handleChange} 
-              required 
-              className="w-full bg-white/10 border border-white/20 text-white p-3 rounded-lg focus:outline-none focus:border-white/40 transition-all" 
-            />
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.6 }}
-          >
-            <label htmlFor="employment_type" className="block text-white mb-2 font-semibold">Employment Type</label>
-            <select 
-              name="employment_type" 
-              value={career.employment_type} 
-              onChange={handleChange} 
-              className="w-full bg-white/10 border border-white/20 text-white p-3 rounded-lg focus:outline-none focus:border-white/40 transition-all"
-            >
-              <option>Full-time</option>
-              <option>Part-time</option>
-              <option>Contract</option>
-              <option>Internship</option>
-            </select>
-          </motion.div>
-        </div>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.7 }}
-        >
-          <label htmlFor="description" className="block text-white mb-2 font-semibold">Description</label>
-          <textarea 
-            name="description" 
-            value={career.description} 
-            onChange={handleChange} 
-            rows={5} 
-            className="w-full bg-white/10 border border-white/20 text-white p-3 rounded-lg focus:outline-none focus:border-white/40 transition-all" 
-          />
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.8 }}
-        >
-          <label htmlFor="responsibilities" className="block text-white mb-2 font-semibold">Responsibilities (one per line)</label>
-          <textarea 
-            name="responsibilities" 
-            value={Array.isArray(career.responsibilities) ? career.responsibilities.join('\n') : ''} 
-            onChange={handleArrayChange} 
-            rows={5} 
-            className="w-full bg-white/10 border border-white/20 text-white p-3 rounded-lg focus:outline-none focus:border-white/40 transition-all" 
-          />
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.9 }}
-        >
-          <label htmlFor="requirements" className="block text-white mb-2 font-semibold">Requirements (one per line)</label>
-          <textarea 
-            name="requirements" 
-            value={Array.isArray(career.requirements) ? career.requirements.join('\n') : ''} 
-            onChange={handleArrayChange} 
-            rows={5} 
-            className="w-full bg-white/10 border border-white/20 text-white p-3 rounded-lg focus:outline-none focus:border-white/40 transition-all" 
-          />
-        </motion.div>
-        <motion.div 
-          className="flex items-center gap-4"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 1.0 }}
-        >
-          <input 
-            type="checkbox" 
-            name="is_active" 
-            checked={career.is_active} 
-            onChange={handleChange} 
-            className="h-5 w-5 rounded bg-white/10 border-white/20 focus:ring-primary focus:ring-2" 
-          />
-          <label htmlFor="is_active" className="text-white font-semibold">Is Active</label>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 1.1 }}
-        >
-          <motion.button
-            type="submit"
-            disabled={loading}
-            whileHover={{ scale: 1.02, y: -2 }}
-            whileTap={{ scale: 0.98 }}
-            className="bg-white text-slate-900 px-6 py-3 rounded-full font-semibold hover:bg-white/90 transition-all disabled:opacity-50"
-          >
-            {loading ? (
-              <div className="flex items-center justify-center">
-                <div className="w-4 h-4 border-2 border-slate-900 border-t-transparent rounded-full animate-spin mr-2"></div>
-                Saving...
-              </div>
-            ) : 'Save Job Posting'}
-          </motion.button>
-        </motion.div>
-      </motion.form>
+        <ContentForm
+          fields={formFields}
+          initialValues={initialValues}
+          onSubmit={handleSubmit}
+          onCancel={handleCancel}
+          submitLabel={id ? 'Update Career' : 'Create Career'}
+          isSubmitting={isSubmitting}
+        />
+      </motion.div>
     </motion.div>
   );
 }

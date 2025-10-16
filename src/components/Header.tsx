@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import DarkModeToggle from './DarkModeToggle';
 import LanguageSelector from './LanguageSelector';
@@ -10,7 +9,6 @@ import SearchBar from './SearchBar';
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const { isAdmin } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,11 +18,8 @@ export default function Header() {
   }, []);
 
   const handleDashboardClick = () => {
-    if (isAdmin) {
-      navigate('/admin/dashboard');
-    } else {
-      navigate('/dashboard');
-    }
+    // Always navigate to admin dashboard
+    navigate('/admin/dashboard');
   };
 
   const navItems = [

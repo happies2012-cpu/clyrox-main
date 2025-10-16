@@ -5,8 +5,21 @@ import PageHero from '../components/PageHero';
 import AnimatedSection from '../components/AnimatedSection';
 import GlassCard from '../components/GlassCard';
 import EnhancedLoadingSpinner from '../components/EnhancedLoadingSpinner';
-import { supabase, Career } from '../lib/supabase';
 import { motion } from 'framer-motion';
+
+// Define the Career interface locally
+interface Career {
+  id: string;
+  title: string;
+  department: string;
+  location: string;
+  employment_type: string;
+  description: string;
+  requirements: string[];
+  responsibilities: string[];
+  salary_range?: string;
+  is_active: boolean;
+}
 
 export default function CareerDetail() {
   const { id } = useParams<{ id: string }>();
@@ -15,14 +28,96 @@ export default function CareerDetail() {
 
   const loadJob = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from('careers')
-      .select('*')
-      .eq('id', id)
-      .eq('is_active', true)
-      .single();
-    if (data) setJob(data);
-    setLoading(false);
+    
+    // Simulate loading job without Supabase
+    setTimeout(() => {
+      // Mock career data
+      const mockCareers: Career[] = [
+        {
+          id: '1',
+          title: 'Senior Business Consultant',
+          department: 'Consulting',
+          location: 'New York, NY',
+          employment_type: 'Full-time',
+          description: 'We are looking for an experienced business consultant to join our team and help clients achieve their strategic goals. The ideal candidate will have a strong background in business strategy, market analysis, and operational optimization. You will work closely with our clients to identify opportunities, address challenges, and implement solutions that drive measurable results.',
+          requirements: [
+            'MBA or advanced degree in business or related field',
+            '5+ years of consulting experience',
+            'Strong analytical and problem-solving skills',
+            'Excellent communication and presentation abilities',
+            'Proven track record of delivering successful client engagements',
+            'Ability to work independently and manage multiple projects simultaneously'
+          ],
+          responsibilities: [
+            'Lead client engagements and deliver strategic recommendations',
+            'Conduct market research and competitive analysis',
+            'Develop and present client proposals',
+            'Mentor junior consultants and team members',
+            'Manage project timelines and deliverables',
+            'Coordinate with cross-functional teams to ensure project success'
+          ],
+          salary_range: '$120,000 - $150,000',
+          is_active: true
+        },
+        {
+          id: '2',
+          title: 'HR Specialist',
+          department: 'Human Resources',
+          location: 'Los Angeles, CA',
+          employment_type: 'Full-time',
+          description: 'Join our HR team to support talent acquisition, employee relations, and organizational development initiatives. You will play a key role in creating a positive workplace culture and ensuring our employees have the support they need to succeed. This position requires strong interpersonal skills and attention to detail.',
+          requirements: [
+            'Bachelor\'s degree in Human Resources or related field',
+            '3+ years of HR experience',
+            'PHR or SPHR certification preferred',
+            'Strong interpersonal and conflict resolution skills',
+            'Proficiency in HRIS systems and Microsoft Office Suite',
+            'Knowledge of employment law and regulations'
+          ],
+          responsibilities: [
+            'Manage full-cycle recruitment process',
+            'Administer employee benefits programs',
+            'Handle employee relations issues',
+            'Support performance management processes',
+            'Maintain HR records and documentation',
+            'Coordinate training and development programs'
+          ],
+          salary_range: '$70,000 - $90,000',
+          is_active: true
+        },
+        {
+          id: '3',
+          title: 'Software Developer',
+          department: 'Technology',
+          location: 'San Francisco, CA',
+          employment_type: 'Full-time',
+          description: 'We are seeking a talented software developer to build innovative solutions for our clients and internal systems. You will work with a team of experienced developers to design, develop, and maintain web applications using modern technologies. This role requires strong technical skills and a passion for creating high-quality software.',
+          requirements: [
+            'Bachelor\'s degree in Computer Science or related field',
+            '3+ years of experience with JavaScript/TypeScript',
+            'Experience with React and Node.js',
+            'Knowledge of cloud platforms (AWS, Azure, or GCP)',
+            'Familiarity with version control systems (Git)',
+            'Understanding of RESTful APIs and database design'
+          ],
+          responsibilities: [
+            'Develop and maintain web applications',
+            'Collaborate with design and product teams',
+            'Write clean, testable code',
+            'Participate in code reviews and technical discussions',
+            'Troubleshoot and debug issues',
+            'Document technical specifications and user guides'
+          ],
+          salary_range: '$100,000 - $130,000',
+          is_active: true
+        }
+      ];
+      
+      // Find the job by id
+      const foundJob = mockCareers.find(j => j.id === id) || null;
+      setJob(foundJob);
+      setLoading(false);
+    }, 1000);
   }, [id]);
 
   useEffect(() => {
@@ -78,6 +173,11 @@ export default function CareerDetail() {
                   <Clock className="w-5 h-5" />
                   <span>{job.employment_type}</span>
                 </div>
+                {job.salary_range && (
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold">${job.salary_range}</span>
+                  </div>
+                )}
               </motion.div>
 
               <motion.div 

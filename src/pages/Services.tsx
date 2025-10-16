@@ -4,8 +4,21 @@ import PageHero from '../components/PageHero';
 import AnimatedSection from '../components/AnimatedSection';
 import GlassCard from '../components/GlassCard';
 import EnhancedServiceCard from '../components/EnhancedServiceCard';
-import { supabase, Service } from '../lib/supabase';
 import { motion } from 'framer-motion';
+
+// Define the Service interface locally
+interface Service {
+  id: string;
+  slug: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  icon: string;
+  hero_image: string;
+  features: Array<{ title: string; description: string }>;
+  order_index: number;
+  is_active: boolean;
+}
 
 export default function Services() {
   const [services, setServices] = useState<Service[]>([]);
@@ -42,19 +55,118 @@ export default function Services() {
 
   const loadServices = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('services')
-      .select('*')
-      .eq('is_active', true)
-      .order('order_index');
-    if (data) {
-      setServices(data);
-      setFilteredServices(data);
-    }
-    if (error) {
-      console.error('Error loading services:', error);
-    }
-    setLoading(false);
+    
+    // Simulate loading services without Supabase
+    setTimeout(() => {
+      const mockServices: Service[] = [
+        {
+          id: '1',
+          slug: 'business-consulting',
+          title: 'Business Consulting',
+          subtitle: 'Strategic business solutions',
+          description: 'Our expert consultants provide comprehensive business strategy development, market analysis, and operational optimization to help your organization achieve sustainable growth and competitive advantage.',
+          icon: '',
+          hero_image: 'https://images.pexels.com/photos/3184325/pexels-photo-3184325.jpeg?auto=compress&cs=tinysrgb&w=1920',
+          features: [
+            { title: 'Strategy Development', description: 'Comprehensive business strategy formulation' },
+            { title: 'Market Analysis', description: 'In-depth market research and analysis' },
+            { title: 'Operational Efficiency', description: 'Process optimization and efficiency improvements' },
+            { title: 'Financial Planning', description: 'Strategic financial planning and analysis' }
+          ],
+          order_index: 1,
+          is_active: true
+        },
+        {
+          id: '2',
+          slug: 'employment-consulting',
+          title: 'Employment Consulting',
+          subtitle: 'Career and talent solutions',
+          description: 'We help professionals navigate their career paths and assist organizations in finding and retaining top talent through our comprehensive employment consulting services.',
+          icon: '',
+          hero_image: 'https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=1920',
+          features: [
+            { title: 'Career Coaching', description: 'Personalized career development coaching' },
+            { title: 'Talent Acquisition', description: 'Strategic recruitment and hiring solutions' },
+            { title: 'Skills Assessment', description: 'Comprehensive skills evaluation and development' },
+            { title: 'Job Placement', description: 'Effective job matching and placement services' }
+          ],
+          order_index: 2,
+          is_active: true
+        },
+        {
+          id: '3',
+          slug: 'visa-consulting',
+          title: 'Visa Consulting',
+          subtitle: 'Immigration and visa services',
+          description: 'Our specialized visa consultants provide expert guidance on immigration processes, visa applications, and compliance with international regulations to ensure smooth transitions.',
+          icon: '',
+          hero_image: 'https://images.pexels.com/photos/3184296/pexels-photo-3184296.jpeg?auto=compress&cs=tinysrgb&w=1920',
+          features: [
+            { title: 'Visa Applications', description: 'Complete visa application assistance' },
+            { title: 'Immigration Law', description: 'Expert immigration law guidance' },
+            { title: 'Document Preparation', description: 'Comprehensive document preparation services' },
+            { title: 'Compliance Support', description: 'Regulatory compliance assistance' }
+          ],
+          order_index: 3,
+          is_active: true
+        },
+        {
+          id: '4',
+          slug: 'design-development',
+          title: 'Design & Development',
+          subtitle: 'Creative and technical solutions',
+          description: 'Our creative and technical team delivers innovative design and development solutions that transform your ideas into reality with cutting-edge technology and artistic excellence.',
+          icon: '',
+          hero_image: 'https://images.pexels.com/photos/3184339/pexels-photo-3184339.jpeg?auto=compress&cs=tinysrgb&w=1920',
+          features: [
+            { title: 'UI/UX Design', description: 'User-centered interface and experience design' },
+            { title: 'Web Development', description: 'Modern web application development' },
+            { title: 'Mobile Apps', description: 'Cross-platform mobile application development' },
+            { title: 'Brand Identity', description: 'Comprehensive brand identity creation' }
+          ],
+          order_index: 4,
+          is_active: true
+        },
+        {
+          id: '5',
+          slug: 'staffing-services',
+          title: 'Staffing Services',
+          subtitle: 'Talent acquisition and management',
+          description: 'We provide comprehensive staffing solutions to help organizations find, hire, and retain the right talent for their specific needs and business objectives.',
+          icon: '',
+          hero_image: 'https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=1920',
+          features: [
+            { title: 'Temporary Staffing', description: 'Flexible temporary staffing solutions' },
+            { title: 'Permanent Placement', description: 'Direct hire permanent placement services' },
+            { title: 'Contract Recruitment', description: 'Specialized contract recruitment services' },
+            { title: 'Workforce Management', description: 'Comprehensive workforce management solutions' }
+          ],
+          order_index: 5,
+          is_active: true
+        },
+        {
+          id: '6',
+          slug: 'digital-marketing',
+          title: 'Digital Marketing',
+          subtitle: 'Online presence and growth',
+          description: 'Our digital marketing experts help businesses establish and grow their online presence through strategic SEO, content marketing, social media management, and data-driven campaigns.',
+          icon: '',
+          hero_image: 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=1920',
+          features: [
+            { title: 'SEO Optimization', description: 'Search engine optimization strategies' },
+            { title: 'Social Media', description: 'Comprehensive social media management' },
+            { title: 'Content Marketing', description: 'Strategic content creation and distribution' },
+            { title: 'Analytics & Reporting', description: 'Data-driven analytics and reporting' }
+          ],
+          order_index: 6,
+          is_active: true
+        }
+      ];
+      
+      setServices(mockServices);
+      setFilteredServices(mockServices);
+      setLoading(false);
+    }, 1000);
   };
 
   return (

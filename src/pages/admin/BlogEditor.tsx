@@ -1,9 +1,23 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { supabase, BlogPost } from '../../lib/supabase';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
+
+// Define the BlogPost interface
+interface BlogPost {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  author: string;
+  featured_image: string;
+  category: string;
+  tags: string[];
+  is_published: boolean;
+  published_at: string;
+}
 
 export default function BlogEditor() {
   const { id } = useParams<{ id: string }>();
@@ -23,8 +37,26 @@ export default function BlogEditor() {
   const [activeTab, setActiveTab] = useState('write');
 
   const loadPost = useCallback(async () => {
-    const { data } = await supabase.from('blog_posts').select('*').eq('id', id).single();
-    if (data) setPost(data);
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Mock data for editing
+    if (id) {
+      const mockPost: BlogPost = {
+        id: id,
+        slug: 'getting-started-with-web-development',
+        title: 'Getting Started with Web Development',
+        excerpt: 'Learn the basics of web development and how to get started in this exciting field.',
+        content: '# Getting Started with Web Development\n\nWeb development is an exciting field...',
+        author: 'Clyrox Team',
+        featured_image: '/placeholder-image.jpg',
+        category: 'Tutorial',
+        tags: ['web development', 'beginner', 'tutorial'],
+        is_published: true,
+        published_at: new Date().toISOString()
+      };
+      setPost(mockPost);
+    }
   }, [id]);
 
   useEffect(() => {
@@ -37,21 +69,11 @@ export default function BlogEditor() {
     e.preventDefault();
     setLoading(true);
 
-    const postData = {
-      ...post,
-      published_at: new Date().toISOString(),
-    };
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const { error } = id
-      ? await supabase.from('blog_posts').update(postData).eq('id', id)
-      : await supabase.from('blog_posts').insert([postData]);
-
-    if (error) {
-      toast.error('Error saving post: ' + error.message);
-    } else {
-      toast.success(`Post ${id ? 'updated' : 'created'} successfully!`);
-      navigate('/admin/blog');
-    }
+    toast.success(`Post ${id ? 'updated' : 'created'} successfully!`);
+    navigate('/admin/blog');
     setLoading(false);
   };
 
@@ -199,20 +221,6 @@ export default function BlogEditor() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.8 }}
           >
-            <label htmlFor="author" className="block text-white mb-2 font-semibold">Author</label>
-            <input 
-              type="text" 
-              name="author" 
-              value={post.author} 
-              onChange={handleChange} 
-              className="w-full bg-white/10 border border-white/20 text-white p-3 rounded-lg focus:outline-none focus:border-white/40 transition-all" 
-            />
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.9 }}
-          >
             <label htmlFor="category" className="block text-white mb-2 font-semibold">Category</label>
             <select 
               name="category" 
@@ -220,12 +228,26 @@ export default function BlogEditor() {
               onChange={handleChange} 
               className="w-full bg-white/10 border border-white/20 text-white p-3 rounded-lg focus:outline-none focus:border-white/40 transition-all"
             >
-              <option value="Business">Business</option>
-              <option value="Employment">Employment</option>
-              <option value="Immigration">Immigration</option>
-              <option value="Technology">Technology</option>
               <option value="Industry News">Industry News</option>
+              <option value="Tutorial">Tutorial</option>
+              <option value="Case Study">Case Study</option>
+              <option value="Announcement">Announcement</option>
             </select>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.9 }}
+          >
+            <label htmlFor="tags" className="block text-white mb-2 font-semibold">Tags (comma separated)</label>
+            <input 
+              type="text" 
+              name="tags" 
+              value={Array.isArray(post.tags) ? post.tags.join(', ') : ''} 
+              onChange={handleChange} 
+              placeholder="web development, react, tutorial"
+              className="w-full bg-white/10 border border-white/20 text-white p-3 rounded-lg focus:outline-none focus:border-white/40 transition-all" 
+            />
           </motion.div>
         </div>
         <motion.div
@@ -233,49 +255,37 @@ export default function BlogEditor() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 1.0 }}
         >
-          <label htmlFor="tags" className="block text-white mb-2 font-semibold">Tags (comma-separated)</label>
-          <input 
-            type="text" 
-            name="tags" 
-            value={Array.isArray(post.tags) ? post.tags.join(', ') : ''} 
-            onChange={handleChange} 
-            className="w-full bg-white/10 border border-white/20 text-white p-3 rounded-lg focus:outline-none focus:border-white/40 transition-all" 
-          />
+          <label className="flex items-center gap-2 text-white font-semibold">
+            <input 
+              type="checkbox" 
+              name="is_published" 
+              checked={post.is_published} 
+              onChange={handleChange} 
+              className="w-4 h-4 rounded focus:ring-primary focus:border-primary" 
+            />
+            Published
+          </label>
         </motion.div>
-        <motion.div 
-          className="flex items-center gap-4"
+        <motion.div
+          className="flex gap-4"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 1.1 }}
         >
-          <input 
-            type="checkbox" 
-            name="is_published" 
-            checked={post.is_published} 
-            onChange={handleChange} 
-            className="h-5 w-5 rounded bg-white/10 border-white/20 focus:ring-primary focus:ring-2" 
-          />
-          <label htmlFor="is_published" className="text-white font-semibold">Published</label>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 1.2 }}
-        >
-          <motion.button
-            type="submit"
+          <button 
+            type="submit" 
             disabled={loading}
-            whileHover={{ scale: 1.02, y: -2 }}
-            whileTap={{ scale: 0.98 }}
-            className="bg-white text-slate-900 px-6 py-3 rounded-full font-semibold hover:bg-white/90 transition-all disabled:opacity-50"
+            className="bg-primary hover:bg-primary-dark text-white font-semibold py-3 px-6 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-50"
           >
-            {loading ? (
-              <div className="flex items-center justify-center">
-                <div className="w-4 h-4 border-2 border-slate-900 border-t-transparent rounded-full animate-spin mr-2"></div>
-                Saving...
-              </div>
-            ) : 'Save Post'}
-          </motion.button>
+            {loading ? 'Saving...' : (id ? 'Update Post' : 'Create Post')}
+          </button>
+          <button 
+            type="button" 
+            onClick={() => navigate('/admin/blog')}
+            className="bg-white/10 hover:bg-white/20 text-white font-semibold py-3 px-6 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-white/50 border border-white/20"
+          >
+            Cancel
+          </button>
         </motion.div>
       </motion.form>
     </motion.div>

@@ -7,7 +7,17 @@ import GlassCard from '../components/GlassCard';
 import EnhancedLoadingSpinner from '../components/EnhancedLoadingSpinner';
 import { FormValidator, ValidationError, getErrorMessage, hasError } from '../utils/formValidation';
 import { NotificationManager, notify } from '../utils/notifications';
-import { supabase, ContactSubmission } from '../lib/supabase';
+
+// Define the ContactSubmission interface locally
+interface ContactSubmission {
+  id: string;
+  created_at: string;
+  name: string;
+  email: string;
+  phone?: string;
+  service_interest?: string;
+  message: string;
+}
 
 export default function Contact() {
   const [formData, setFormData] = useState<Partial<ContactSubmission>>({
@@ -49,9 +59,8 @@ export default function Contact() {
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase.from('contact_submissions').insert([formData]);
-
-      if (error) throw error;
+      // Simulate form submission without Supabase
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       NotificationManager.dismiss(toastId);
       notify.success.send();
@@ -200,7 +209,7 @@ export default function Contact() {
                     type="text"
                     id="name"
                     name="name"
-                    value={formData.name}
+                    value={formData.name || ''}
                     onChange={handleChange}
                     className={`w-full backdrop-blur-xl bg-white/10 border ${
                       hasError(errors, 'name') ? 'border-red-500' : 'border-white/20'
@@ -212,44 +221,46 @@ export default function Contact() {
                   )}
                 </div>
 
-                <div>
-                  <label htmlFor="email" className="block text-white mb-2 font-semibold">
-                    Email *
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className={`w-full backdrop-blur-xl bg-white/10 border ${
-                      hasError(errors, 'email') ? 'border-red-500' : 'border-white/20'
-                    } text-white placeholder-white/50 px-6 py-4 rounded-xl focus:outline-none focus:border-white/40`}
-                    placeholder="your.email@example.com"
-                  />
-                  {hasError(errors, 'email') && (
-                    <p className="text-red-400 text-sm mt-1">{getErrorMessage(errors, 'email')}</p>
-                  )}
-                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="email" className="block text-white mb-2 font-semibold">
+                      Email *
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={formData.email || ''}
+                      onChange={handleChange}
+                      className={`w-full backdrop-blur-xl bg-white/10 border ${
+                        hasError(errors, 'email') ? 'border-red-500' : 'border-white/20'
+                      } text-white placeholder-white/50 px-6 py-4 rounded-xl focus:outline-none focus:border-white/40`}
+                      placeholder="your.email@example.com"
+                    />
+                    {hasError(errors, 'email') && (
+                      <p className="text-red-400 text-sm mt-1">{getErrorMessage(errors, 'email')}</p>
+                    )}
+                  </div>
 
-                <div>
-                  <label htmlFor="phone" className="block text-white mb-2 font-semibold">
-                    Phone
-                  </label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    className={`w-full backdrop-blur-xl bg-white/10 border ${
-                      hasError(errors, 'phone') ? 'border-red-500' : 'border-white/20'
-                    } text-white placeholder-white/50 px-6 py-4 rounded-xl focus:outline-none focus:border-white/40`}
-                    placeholder="+1 (234) 567-890"
-                  />
-                  {hasError(errors, 'phone') && (
-                    <p className="text-red-400 text-sm mt-1">{getErrorMessage(errors, 'phone')}</p>
-                  )}
+                  <div>
+                    <label htmlFor="phone" className="block text-white mb-2 font-semibold">
+                      Phone
+                    </label>
+                    <input
+                      type="tel"
+                      id="phone"
+                      name="phone"
+                      value={formData.phone || ''}
+                      onChange={handleChange}
+                      className={`w-full backdrop-blur-xl bg-white/10 border ${
+                        hasError(errors, 'phone') ? 'border-red-500' : 'border-white/20'
+                      } text-white placeholder-white/50 px-6 py-4 rounded-xl focus:outline-none focus:border-white/40`}
+                      placeholder="+1 (123) 456-7890"
+                    />
+                    {hasError(errors, 'phone') && (
+                      <p className="text-red-400 text-sm mt-1">{getErrorMessage(errors, 'phone')}</p>
+                    )}
+                  </div>
                 </div>
 
                 <div>
@@ -259,16 +270,17 @@ export default function Contact() {
                   <select
                     id="service_interest"
                     name="service_interest"
-                    value={formData.service_interest}
-                    onChange={handleChange}
+                    value={formData.service_interest || ''}
+                    onChange={handleChange as React.ChangeEventHandler<HTMLSelectElement>}
                     className="w-full backdrop-blur-xl bg-white/10 border border-white/20 text-white px-6 py-4 rounded-xl focus:outline-none focus:border-white/40"
                   >
                     <option value="" className="bg-slate-800">Select a service</option>
-                    <option value="Business Consulting" className="bg-slate-800">Business Consulting</option>
-                    <option value="Employment Consulting" className="bg-slate-800">Employment Consulting</option>
-                    <option value="Visa Consulting" className="bg-slate-800">Visa Consulting</option>
-                    <option value="Design & Development" className="bg-slate-800">Design & Development</option>
-                    <option value="Staffing Services" className="bg-slate-800">Staffing Services</option>
+                    <option value="business-consulting" className="bg-slate-800">Business Consulting</option>
+                    <option value="employment-consulting" className="bg-slate-800">Employment Consulting</option>
+                    <option value="visa-consulting" className="bg-slate-800">Visa Consulting</option>
+                    <option value="design-development" className="bg-slate-800">Design & Development</option>
+                    <option value="staffing-services" className="bg-slate-800">Staffing Services</option>
+                    <option value="other" className="bg-slate-800">Other</option>
                   </select>
                 </div>
 
@@ -279,13 +291,13 @@ export default function Contact() {
                   <textarea
                     id="message"
                     name="message"
-                    value={formData.message}
+                    value={formData.message || ''}
                     onChange={handleChange}
-                    rows={6}
+                    rows={5}
                     className={`w-full backdrop-blur-xl bg-white/10 border ${
                       hasError(errors, 'message') ? 'border-red-500' : 'border-white/20'
                     } text-white placeholder-white/50 px-6 py-4 rounded-xl focus:outline-none focus:border-white/40 resize-none`}
-                    placeholder="Tell us about your needs... (minimum 10 characters)"
+                    placeholder="Tell us about your project or inquiry..."
                   />
                   {hasError(errors, 'message') && (
                     <p className="text-red-400 text-sm mt-1">{getErrorMessage(errors, 'message')}</p>
@@ -294,112 +306,26 @@ export default function Contact() {
 
                 <motion.button
                   type="submit"
-                  disabled={isSubmitting}
-                  whileHover={{ scale: 1.02, y: -3 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full bg-primary hover:bg-primary-dark text-white px-8 py-4 rounded-full text-lg font-semibold transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                  whileHover={{ scale: 1.02, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="backdrop-blur-xl bg-white text-slate-900 px-8 py-4 rounded-full text-lg font-semibold hover:bg-white/90 transition-all flex items-center gap-2"
                 >
-                  {isSubmitting ? (
-                    <>
-                      <EnhancedLoadingSpinner type="spinner" size="sm" color="text-white" />
-                      <span className="ml-2">Sending...</span>
-                    </>
-                  ) : (
-                    <>
-                      Send Message <Send className="w-5 h-5" />
-                    </>
-                  )}
+                  <Send className="w-5 h-5" />
+                  Send Message
                 </motion.button>
               </form>
             </AnimatedSection>
 
             <AnimatedSection delay={0.2}>
-              <motion.div
-                whileHover={{ y: -5 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                <GlassCard className="p-8 lg:sticky lg:top-24">
-                  <motion.h3 
-                    className="text-2xl font-bold text-white mb-6"
-                    initial={{ opacity: 0, y: 10 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: 0.1 }}
-                  >
-                    Business Hours
-                  </motion.h3>
-                  <motion.div 
-                    className="space-y-4 text-white/70 mb-8"
-                    initial={{ opacity: 0, y: 10 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: 0.2 }}
-                  >
-                    <div className="flex justify-between">
-                      <span>Monday - Friday</span>
-                      <span className="text-white">9:00 AM - 6:00 PM</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Saturday</span>
-                      <span className="text-white">10:00 AM - 4:00 PM</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Sunday</span>
-                      <span className="text-white">Closed</span>
-                    </div>
-                  </motion.div>
-
-                  <div className="border-t border-white/10 pt-8">
-                    <motion.h3 
-                      className="text-2xl font-bold text-white mb-6"
-                      initial={{ opacity: 0, y: 10 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: 0.3 }}
-                    >
-                      Connect With Us
-                    </motion.h3>
-                    <motion.p 
-                      className="text-white/70 mb-6"
-                      initial={{ opacity: 0, y: 10 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: 0.4 }}
-                    >
-                      Follow us on social media for updates, insights, and industry news.
-                    </motion.p>
-                    <motion.div 
-                      className="flex gap-4"
-                      initial={{ opacity: 0, y: 10 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: 0.5 }}
-                    >
-                      {['Facebook', 'Twitter', 'LinkedIn', 'Instagram'].map((platform) => (
-                        <motion.a
-                          key={platform}
-                          href="#"
-                          className="backdrop-blur-xl bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition-all text-white"
-                          whileHover={{ scale: 1.1, y: -3 }}
-                          whileTap={{ scale: 0.9 }}
-                        >
-                          {platform}
-                        </motion.a>
-                      ))}
-                    </motion.div>
-                  </div>
-
-                  <div className="border-t border-white/10 pt-8 mt-8">
-                    <motion.img
-                      src="https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=800"
-                      alt="Office"
-                      className="rounded-xl w-full"
-                      whileHover={{ scale: 1.05 }}
-                      transition={{ duration: 0.5 }}
-                    />
-                  </div>
-                </GlassCard>
-              </motion.div>
+              <div className="overflow-hidden rounded-3xl">
+                <motion.img
+                  src="https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=800"
+                  alt="Contact Us"
+                  className="w-full h-full object-cover"
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.5 }}
+                />
+              </div>
             </AnimatedSection>
           </div>
         </div>

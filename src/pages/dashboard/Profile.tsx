@@ -1,156 +1,115 @@
 import { useState } from 'react';
-import { supabase } from '../../lib/supabase';
 import { motion } from 'framer-motion';
-import EnhancedLoadingSpinner from '../../components/EnhancedLoadingSpinner';
-import { FormValidator, ValidationError, getErrorMessage, hasError } from '../../utils/formValidation';
-import { NotificationManager, notify } from '../../utils/notifications';
+import GlassCard from '../../components/GlassCard';
 
 export default function Profile() {
-  const [loading, setLoading] = useState(false);
-  const [updating, setUpdating] = useState(false);
-  const [fullName, setFullName] = useState('Admin User');
-  const [website, setWebsite] = useState('https://clyrox.com');
-  const [errors, setErrors] = useState<ValidationError[]>([]);
+  const [profile, setProfile] = useState({
+    name: 'Admin User',
+    email: 'admin@clyrox.com',
+    role: 'Administrator',
+    joined: new Date().toLocaleDateString(),
+  });
 
-  const validateForm = () => {
-    const validator = FormValidator.create()
-      .maxLength(fullName, 'Full Name', 100);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedProfile, setEditedProfile] = useState(profile);
 
-    if (website) {
-      validator.pattern(website, 'Website', /^https?:\/\/.+/i, 'Please enter a valid URL starting with http:// or https://');
-    }
-
-    const result = validator.validate();
-    setErrors(result.errors);
-    return result.isValid;
+  const handleSave = () => {
+    setProfile(editedProfile);
+    setIsEditing(false);
   };
-
-  const updateProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
-      notify.error.validation('Please fix the errors in the form');
-      return;
-    }
-    
-    const toastId = notify.loading.saving();
-    setUpdating(true);
-
-    // Simulate profile update since we're bypassing authentication
-    setTimeout(() => {
-      NotificationManager.dismiss(toastId);
-      notify.success.save();
-      setUpdating(false);
-    }, 1000);
-  };
-
-  const handleChange = (setter: React.Dispatch<React.SetStateAction<string>>) => 
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setter(e.target.value);
-    };
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <EnhancedLoadingSpinner type="bars" size="md" color="text-white" message="Loading profile..." />
-      </div>
-    );
-  }
 
   return (
     <div>
       <motion.h1 
         className="text-3xl font-bold text-white mb-6"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5 }}
       >
         Profile
       </motion.h1>
-      <motion.p 
-        className="text-white/70 mb-8"
-        initial={{ opacity: 0, y: -20 }}
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
       >
-        Update your user profile here.
-      </motion.p>
-
-      <motion.form 
-        onSubmit={updateProfile} 
-        className="max-w-lg space-y-6"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-      >
-        <div>
-          <label htmlFor="email" className="block text-white mb-2 font-semibold">
-            Email
-          </label>
-          <input
-            id="email"
-            type="text"
-            value="admin@example.com"
-            disabled
-            className="w-full backdrop-blur-xl bg-white/5 border border-white/20 text-white/50 px-6 py-3 rounded-xl"
-          />
-        </div>
-        <div>
-          <label htmlFor="fullName" className="block text-white mb-2 font-semibold">
-            Full Name
-          </label>
-          <input
-            id="fullName"
-            type="text"
-            value={fullName}
-            onChange={handleChange(setFullName)}
-            className={`w-full backdrop-blur-xl bg-white/10 border ${
-              hasError(errors, 'Full Name') ? 'border-red-500' : 'border-white/20'
-            } text-white placeholder-white/50 px-6 py-3 rounded-xl focus:outline-none focus:border-white/40`}
-            placeholder="Your full name"
-          />
-          {hasError(errors, 'Full Name') && (
-            <p className="text-red-400 text-sm mt-1">{getErrorMessage(errors, 'Full Name')}</p>
-          )}
-        </div>
-        <div>
-          <label htmlFor="website" className="block text-white mb-2 font-semibold">
-            Website
-          </label>
-          <input
-            id="website"
-            type="url"
-            value={website}
-            onChange={handleChange(setWebsite)}
-            className={`w-full backdrop-blur-xl bg-white/10 border ${
-              hasError(errors, 'Website') ? 'border-red-500' : 'border-white/20'
-            } text-white placeholder-white/50 px-6 py-3 rounded-xl focus:outline-none focus:border-white/40`}
-            placeholder="https://your-website.com"
-          />
-          {hasError(errors, 'Website') && (
-            <p className="text-red-400 text-sm mt-1">{getErrorMessage(errors, 'Website')}</p>
-          )}
-        </div>
-
-        <div>
-          <motion.button
-            type="submit"
-            disabled={updating}
-            whileHover={{ scale: 1.02, y: -2 }}
-            whileTap={{ scale: 0.95 }}
-            className="backdrop-blur-xl bg-white text-slate-900 px-8 py-3 rounded-full font-semibold hover:bg-white/90 transition-all disabled:opacity-50"
-          >
-            {updating ? (
-              <div className="flex items-center justify-center">
-                <EnhancedLoadingSpinner type="spinner" size="sm" color="text-slate-900" />
-                <span className="ml-2">Saving...</span>
+        <GlassCard className="p-6">
+          {isEditing ? (
+            <div className="space-y-6">
+              <div>
+                <label className="block text-white mb-2 font-semibold">Name</label>
+                <input
+                  type="text"
+                  value={editedProfile.name}
+                  onChange={(e) => setEditedProfile({...editedProfile, name: e.target.value})}
+                  className="w-full bg-white/10 border border-white/20 text-white p-3 rounded-lg focus:outline-none focus:border-white/40 transition-all"
+                />
               </div>
-            ) : (
-              'Update Profile'
-            )}
-          </motion.button>
-        </div>
-      </motion.form>
+              <div>
+                <label className="block text-white mb-2 font-semibold">Email</label>
+                <input
+                  type="email"
+                  value={editedProfile.email}
+                  onChange={(e) => setEditedProfile({...editedProfile, email: e.target.value})}
+                  className="w-full bg-white/10 border border-white/20 text-white p-3 rounded-lg focus:outline-none focus:border-white/40 transition-all"
+                />
+              </div>
+              <div className="flex gap-4">
+                <button
+                  onClick={handleSave}
+                  className="bg-primary hover:bg-primary-dark text-white font-semibold py-2 px-4 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-primary/50"
+                >
+                  Save Changes
+                </button>
+                <button
+                  onClick={() => {
+                    setIsEditing(false);
+                    setEditedProfile(profile);
+                  }}
+                  className="bg-white/10 hover:bg-white/20 text-white font-semibold py-2 px-4 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-white/50 border border-white/20"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              <div className="flex items-center gap-4">
+                <div className="bg-primary/20 w-16 h-16 rounded-full flex items-center justify-center">
+                  <span className="text-2xl text-primary-light font-bold">
+                    {profile.name.charAt(0)}
+                  </span>
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-white">{profile.name}</h2>
+                  <p className="text-white/70">{profile.role}</p>
+                </div>
+              </div>
+              
+              <div className="border-t border-white/10 pt-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-white/50 text-sm">Email</p>
+                    <p className="text-white">{profile.email}</p>
+                  </div>
+                  <div>
+                    <p className="text-white/50 text-sm">Joined</p>
+                    <p className="text-white">{profile.joined}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <button
+                onClick={() => setIsEditing(true)}
+                className="bg-primary hover:bg-primary-dark text-white font-semibold py-2 px-4 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-primary/50"
+              >
+                Edit Profile
+              </button>
+            </div>
+          )}
+        </GlassCard>
+      </motion.div>
     </div>
   );
 }

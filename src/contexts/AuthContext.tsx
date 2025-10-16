@@ -1,5 +1,13 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import { User } from '@supabase/supabase-js';
+import { createContext, useContext } from 'react';
+
+// Define a simple user type for open access
+interface User {
+  id: string;
+  email: string;
+  app_metadata: {
+    role: string;
+  };
+}
 
 interface AuthContextType {
   user: User | null;
@@ -9,42 +17,30 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType>({
-  user: null,
+  user: {
+    id: 'open-access-user',
+    email: 'open@clyrox.com',
+    app_metadata: {
+      role: 'admin'
+    }
+  },
   loading: false,
   isAdmin: true,
   isAuthorized: () => true,
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(true);
-
-  useEffect(() => {
-    // Simulate a logged-in admin user to bypass authentication
-    const simulateUser = {
+  const value = {
+    user: {
       id: 'open-access-user',
       email: 'open@clyrox.com',
       app_metadata: {
         role: 'admin'
       }
-    } as unknown as User;
-    
-    setUser(simulateUser);
-    setIsAdmin(true);
-    setLoading(false);
-  }, []);
-
-  const isAuthorized = (): boolean => {
-    // Always return true to bypass authorization
-    return true;
-  };
-
-  const value = {
-    user,
-    loading,
-    isAdmin,
-    isAuthorized,
+    },
+    loading: false,
+    isAdmin: true,
+    isAuthorized: () => true,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,134 +1,181 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { supabase, BlogPost } from '../../lib/supabase';
-import { Plus, Edit, Trash2, Eye, EyeOff } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Plus, Edit, Trash2, Eye } from 'lucide-react';
 import toast from 'react-hot-toast';
+import GlassCard from '../../components/GlassCard';
+import AnimatedSection from '../../components/AnimatedSection';
+import { motion } from 'framer-motion';
+
+// Define the BlogPost interface
+interface BlogPost {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  author: string;
+  featured_image: string;
+  category: string;
+  tags: string[];
+  is_published: boolean;
+  published_at: string;
+}
 
 export default function BlogManager() {
-  const [posts, setPosts] = useState<BlogPost[]>([]);
-
-  useEffect(() => {
-    loadPosts();
-  }, []);
-
-  const loadPosts = async () => {
-    const { data } = await supabase.from('blog_posts').select('*').order('published_at', { ascending: false });
-    if (data) setPosts(data);
-  };
+  const navigate = useNavigate();
+  const [posts, setPosts] = useState<BlogPost[]>([
+    {
+      id: '1',
+      slug: 'getting-started-with-web-development',
+      title: 'Getting Started with Web Development',
+      excerpt: 'Learn the basics of web development and how to get started in this exciting field.',
+      content: '# Getting Started with Web Development\n\nWeb development is an exciting field...',
+      author: 'Clyrox Team',
+      featured_image: '/placeholder-image.jpg',
+      category: 'Tutorial',
+      tags: ['web development', 'beginner', 'tutorial'],
+      is_published: true,
+      published_at: new Date().toISOString()
+    }
+  ]);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const handleDelete = async (id: string) => {
-    // Automatically confirm deletion instead of prompting user
-    const { error } = await supabase.from('blog_posts').delete().eq('id', id);
-    if (error) {
-      toast.error('Error deleting post: ' + error.message);
-    } else {
-      toast.success('Post deleted successfully');
-      loadPosts();
-    }
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Remove the post from state
+    setPosts(posts.filter(post => post.id !== id));
+    toast.success('Post deleted successfully');
   };
+
+  const filteredPosts = posts.filter(post => 
+    post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    post.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    post.category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div>
-      <motion.div 
-        className="flex justify-between items-center mb-6"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <motion.h1 
           className="text-3xl font-bold text-white"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
+          transition={{ duration: 0.5 }}
         >
-          Manage Blog Posts
+          Blog Posts
         </motion.h1>
         <motion.div
-          whileHover={{ scale: 1.05, y: -2 }}
-          whileTap={{ scale: 0.95 }}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
         >
-          <Link
-            to="/admin/blog/new"
-            className="inline-flex items-center gap-2 bg-white text-slate-900 px-4 py-2 rounded-lg font-semibold hover:bg-white/90 transition-all"
+          <button
+            onClick={() => navigate('/admin/blog/new')}
+            className="flex items-center gap-2 bg-primary hover:bg-primary-dark text-white font-semibold py-2 px-4 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-primary/50"
           >
             <Plus className="w-5 h-5" />
-            New Post
-          </Link>
+            Add New Post
+          </button>
         </motion.div>
-      </motion.div>
+      </div>
 
-      <motion.div 
-        className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg overflow-hidden"
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
+        className="mb-6"
       >
-        <table className="w-full text-left text-white/80">
-          <thead className="bg-white/10">
-            <tr>
-              <th className="p-4">Title</th>
-              <th className="p-4">Category</th>
-              <th className="p-4">Status</th>
-              <th className="p-4">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {posts.map((post, index) => (
-              <motion.tr 
-                key={post.id} 
-                className="border-b border-white/10 last:border-b-0"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.1 }}
-                whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
-              >
-                <td className="p-4">{post.title}</td>
-                <td className="p-4">{post.category}</td>
-                <td className="p-4">
-                  <motion.span
-                    className={`inline-flex items-center gap-2 px-2 py-1 rounded-full text-xs ${
-                      post.is_published
-                        ? 'bg-emerald-500/20 text-emerald-300'
-                        : 'bg-slate-500/20 text-slate-300'
-                    }`}
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                  >
-                    {post.is_published ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
-                    {post.is_published ? 'Published' : 'Draft'}
-                  </motion.span>
-                </td>
-                <td className="p-4 flex gap-2">
-                  <motion.div
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                  >
-                    <Link to={`/admin/blog/edit/${post.id}`}>
-                      <button className="p-2 bg-white/10 hover:bg-white/20 rounded-md">
-                        <Edit className="w-4 h-4" />
-                      </button>
-                    </Link>
-                  </motion.div>
-                  <motion.div
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                  >
-                    <button
-                      onClick={() => handleDelete(post.id)}
-                      className="p-2 bg-red-500/20 hover:bg-red-500/30 rounded-md"
-                    >
-                      <Trash2 className="w-4 h-4 text-red-300" />
-                    </button>
-                  </motion.div>
-                </td>
-              </motion.tr>
-            ))}
-          </tbody>
-        </table>
+        <input
+          type="text"
+          placeholder="Search posts..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full bg-white/10 border border-white/20 text-white p-3 rounded-lg focus:outline-none focus:border-white/40 transition-all"
+        />
       </motion.div>
+
+      {filteredPosts.length === 0 ? (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <GlassCard className="p-8 text-center">
+            <p className="text-xl text-white/70">No blog posts found.</p>
+            <button
+              onClick={() => navigate('/admin/blog/new')}
+              className="mt-4 bg-primary hover:bg-primary-dark text-white font-semibold py-2 px-4 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-primary/50"
+            >
+              Create Your First Post
+            </button>
+          </GlassCard>
+        </motion.div>
+      ) : (
+        <div className="space-y-6">
+          {filteredPosts.map((post, index) => (
+            <AnimatedSection key={post.id} delay={index * 0.05}>
+              <motion.div
+                whileHover={{ y: -5 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <GlassCard className="p-6">
+                  <div className="flex flex-col md:flex-row md:items-start gap-4">
+                    <div className="flex-1">
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
+                        <h2 className="text-xl font-bold text-white">{post.title}</h2>
+                        {!post.is_published && (
+                          <span className="bg-yellow-500/20 text-yellow-300 text-xs font-semibold px-2 py-1 rounded">
+                            Draft
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-white/70 mb-3">{post.excerpt}</p>
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        <span className="bg-primary/20 text-primary-light text-xs font-semibold px-2 py-1 rounded">
+                          {post.category}
+                        </span>
+                        {post.tags.map(tag => (
+                          <span key={tag} className="bg-white/10 text-white/70 text-xs font-semibold px-2 py-1 rounded">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                      <p className="text-sm text-white/50">
+                        By {post.author} • {new Date(post.published_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => window.open(`/blog/${post.slug}`, '_blank')}
+                        className="p-2 bg-white/10 hover:bg-white/20 rounded-md transition-colors"
+                        title="View"
+                      >
+                        <Eye className="w-4 h-4 text-white/70" />
+                      </button>
+                      <button
+                        onClick={() => navigate(`/admin/blog/edit/${post.id}`)}
+                        className="p-2 bg-white/10 hover:bg-white/20 rounded-md transition-colors"
+                        title="Edit"
+                      >
+                        <Edit className="w-4 h-4 text-white/70" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(post.id)}
+                        className="p-2 bg-red-500/20 hover:bg-red-500/30 rounded-md transition-colors"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-4 h-4 text-red-300" />
+                      </button>
+                    </div>
+                  </div>
+                </GlassCard>
+              </motion.div>
+            </AnimatedSection>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import AnimatedSection from './AnimatedSection';
-import { supabase } from '../lib/supabase';
 
 export default function NewsletterSignup() {
   const [email, setEmail] = useState('');
@@ -18,17 +17,13 @@ export default function NewsletterSignup() {
       return;
     }
 
-    const { error } = await supabase.from('newsletter_subscriptions').insert({ email });
-
-    if (error) {
-      if (error.code === '23505') { // Unique constraint violation
-        toast.error('This email is already subscribed.');
-      } else {
-        toast.error('An error occurred. Please try again.');
-      }
-    } else {
+    // Simulate newsletter subscription without Supabase
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
       toast.success('Thank you for subscribing!');
       setEmail('');
+    } catch (error) {
+      toast.error('An error occurred. Please try again.');
     }
 
     setLoading(false);

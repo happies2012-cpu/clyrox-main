@@ -1,9 +1,22 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { supabase, Service } from '../../lib/supabase';
 import ContentForm from '../../components/ContentForm';
 import { notify } from '../../utils/notifications';
 import { motion } from 'framer-motion';
+
+// Define the Service interface
+interface Service {
+  id: string;
+  slug: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  icon: string;
+  hero_image: string;
+  features: Array<{ title: string; description: string }>;
+  order_index: number;
+  is_active: boolean;
+}
 
 interface FormField {
   name: string;
@@ -22,26 +35,32 @@ export default function ServiceEditor() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const loadService = useCallback(async () => {
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
     if (!id) return;
     
-    const { data, error } = await supabase
-      .from('services')
-      .select('*')
-      .eq('id', id)
-      .single();
+    // Mock data for editing
+    const mockService: Service = {
+      id: id,
+      slug: 'web-development',
+      title: 'Web Development',
+      subtitle: 'Custom websites and web applications',
+      description: 'We build custom websites and web applications using modern technologies.',
+      icon: 'code',
+      hero_image: '/placeholder-image.jpg',
+      features: [
+        { title: 'Responsive Design', description: 'Websites that work on all devices' },
+        { title: 'Fast Loading', description: 'Optimized for performance' }
+      ],
+      order_index: 1,
+      is_active: true
+    };
     
-    if (error) {
-      console.error('Error loading service:', error);
-      notify.error.load();
-      return;
-    }
-    
-    if (data) {
-      setInitialValues({
-        ...data,
-        features: data.features || [],
-      });
-    }
+    setInitialValues({
+      ...mockService,
+      features: mockService.features || [],
+    });
   }, [id]);
 
   useEffect(() => {
@@ -65,22 +84,12 @@ export default function ServiceEditor() {
         features: values.features || [],
       };
       
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       if (id) {
-        // Update existing service
-        const { error } = await supabase
-          .from('services')
-          .update(serviceData)
-          .eq('id', id);
-        
-        if (error) throw error;
         notify.success.update();
       } else {
-        // Create new service
-        const { error } = await supabase
-          .from('services')
-          .insert([serviceData]);
-        
-        if (error) throw error;
         notify.success.create();
       }
       

@@ -1,134 +1,174 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { supabase, Service } from '../../lib/supabase';
-import { Plus, Edit, Trash2, Eye, EyeOff } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Plus, Edit, Trash2, Eye } from 'lucide-react';
 import toast from 'react-hot-toast';
+import GlassCard from '../../components/GlassCard';
+import AnimatedSection from '../../components/AnimatedSection';
+import { motion } from 'framer-motion';
+
+// Define the Service interface
+interface Service {
+  id: string;
+  slug: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  icon: string;
+  hero_image: string;
+  features: Array<{ title: string; description: string }>;
+  order_index: number;
+  is_active: boolean;
+}
 
 export default function ServicesManager() {
-  const [services, setServices] = useState<Service[]>([]);
-
-  useEffect(() => {
-    loadServices();
-  }, []);
-
-  const loadServices = async () => {
-    const { data } = await supabase.from('services').select('*').order('order_index');
-    if (data) setServices(data);
-  };
+  const navigate = useNavigate();
+  const [services, setServices] = useState<Service[]>([
+    {
+      id: '1',
+      slug: 'web-development',
+      title: 'Web Development',
+      subtitle: 'Custom websites and web applications',
+      description: 'We build custom websites and web applications using modern technologies.',
+      icon: 'code',
+      hero_image: '/placeholder-image.jpg',
+      features: [
+        { title: 'Responsive Design', description: 'Websites that work on all devices' },
+        { title: 'Fast Loading', description: 'Optimized for performance' }
+      ],
+      order_index: 1,
+      is_active: true
+    }
+  ]);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const handleDelete = async (id: string) => {
-    // Automatically confirm deletion instead of prompting user
-    const { error } = await supabase.from('services').delete().eq('id', id);
-    if (error) {
-      toast.error('Error deleting service: ' + error.message);
-    } else {
-      toast.success('Service deleted successfully');
-      loadServices();
-    }
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Remove the service from state
+    setServices(services.filter(service => service.id !== id));
+    toast.success('Service deleted successfully');
   };
+
+  const filteredServices = services.filter(service => 
+    service.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    service.subtitle.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div>
-      <motion.div 
-        className="flex justify-between items-center mb-6"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <motion.h1 
           className="text-3xl font-bold text-white"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
+          transition={{ duration: 0.5 }}
         >
-          Manage Services
+          Services
         </motion.h1>
         <motion.div
-          whileHover={{ scale: 1.05, y: -2 }}
-          whileTap={{ scale: 0.95 }}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
         >
-          <Link
-            to="/admin/services/new"
-            className="inline-flex items-center gap-2 bg-white text-slate-900 px-4 py-2 rounded-lg font-semibold hover:bg-white/90 transition-all"
+          <button
+            onClick={() => navigate('/admin/services/new')}
+            className="flex items-center gap-2 bg-primary hover:bg-primary-dark text-white font-semibold py-2 px-4 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-primary/50"
           >
             <Plus className="w-5 h-5" />
-            Add Service
-          </Link>
+            Add New Service
+          </button>
         </motion.div>
-      </motion.div>
+      </div>
 
-      <motion.div 
-        className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg overflow-hidden"
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
+        className="mb-6"
       >
-        <table className="w-full text-left text-white/80">
-          <thead className="bg-white/10">
-            <tr>
-              <th className="p-4">Order</th>
-              <th className="p-4">Title</th>
-              <th className="p-4">Status</th>
-              <th className="p-4">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {services.map((service, index) => (
-              <motion.tr 
-                key={service.id} 
-                className="border-b border-white/10 last:border-b-0"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.1 }}
-                whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
-              >
-                <td className="p-4">{service.order_index}</td>
-                <td className="p-4">{service.title}</td>
-                <td className="p-4">
-                  <motion.span
-                    className={`inline-flex items-center gap-2 px-2 py-1 rounded-full text-xs ${
-                      service.is_active
-                        ? 'bg-emerald-500/20 text-emerald-300'
-                        : 'bg-slate-500/20 text-slate-300'
-                    }`}
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                  >
-                    {service.is_active ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
-                    {service.is_active ? 'Active' : 'Inactive'}
-                  </motion.span>
-                </td>
-                <td className="p-4 flex gap-2">
-                  <motion.div
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                  >
-                    <Link to={`/admin/services/edit/${service.id}`}>
-                      <button className="p-2 bg-white/10 hover:bg-white/20 rounded-md">
-                        <Edit className="w-4 h-4" />
-                      </button>
-                    </Link>
-                  </motion.div>
-                  <motion.div
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                  >
-                    <button
-                      onClick={() => handleDelete(service.id)}
-                      className="p-2 bg-red-500/20 hover:bg-red-500/30 rounded-md"
-                    >
-                      <Trash2 className="w-4 h-4 text-red-300" />
-                    </button>
-                  </motion.div>
-                </td>
-              </motion.tr>
-            ))}
-          </tbody>
-        </table>
+        <input
+          type="text"
+          placeholder="Search services..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full bg-white/10 border border-white/20 text-white p-3 rounded-lg focus:outline-none focus:border-white/40 transition-all"
+        />
       </motion.div>
+
+      {filteredServices.length === 0 ? (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <GlassCard className="p-8 text-center">
+            <p className="text-xl text-white/70">No services found.</p>
+            <button
+              onClick={() => navigate('/admin/services/new')}
+              className="mt-4 bg-primary hover:bg-primary-dark text-white font-semibold py-2 px-4 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-primary/50"
+            >
+              Create Your First Service
+            </button>
+          </GlassCard>
+        </motion.div>
+      ) : (
+        <div className="space-y-6">
+          {filteredServices.map((service, index) => (
+            <AnimatedSection key={service.id} delay={index * 0.05}>
+              <motion.div
+                whileHover={{ y: -5 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <GlassCard className="p-6">
+                  <div className="flex flex-col md:flex-row md:items-start gap-4">
+                    <div className="flex-1">
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
+                        <h2 className="text-xl font-bold text-white">{service.title}</h2>
+                        {!service.is_active && (
+                          <span className="bg-red-500/20 text-red-300 text-xs font-semibold px-2 py-1 rounded">
+                            Inactive
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-primary-light font-semibold mb-3">{service.subtitle}</p>
+                      <p className="text-white/70 mb-3 line-clamp-2">{service.description}</p>
+                      <div className="flex flex-wrap gap-2">
+                        <span className="bg-white/10 text-white/70 text-xs font-semibold px-2 py-1 rounded">
+                          Order: {service.order_index}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => window.open(`/services/${service.slug}`, '_blank')}
+                        className="p-2 bg-white/10 hover:bg-white/20 rounded-md transition-colors"
+                        title="View"
+                      >
+                        <Eye className="w-4 h-4 text-white/70" />
+                      </button>
+                      <button
+                        onClick={() => navigate(`/admin/services/edit/${service.id}`)}
+                        className="p-2 bg-white/10 hover:bg-white/20 rounded-md transition-colors"
+                        title="Edit"
+                      >
+                        <Edit className="w-4 h-4 text-white/70" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(service.id)}
+                        className="p-2 bg-red-500/20 hover:bg-red-500/30 rounded-md transition-colors"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-4 h-4 text-red-300" />
+                      </button>
+                    </div>
+                  </div>
+                </GlassCard>
+              </motion.div>
+            </AnimatedSection>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

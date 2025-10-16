@@ -1,35 +1,49 @@
 import { useEffect, useState } from 'react';
-import { supabase, ContactSubmission } from '../../lib/supabase';
 import { Trash2, Mail, Phone, Calendar } from 'lucide-react';
 import toast from 'react-hot-toast';
 import GlassCard from '../../components/GlassCard';
 import AnimatedSection from '../../components/AnimatedSection';
 import { motion } from 'framer-motion';
 
+// Mock data for contact submissions
+interface ContactSubmission {
+  id: string;
+  created_at: string;
+  name: string;
+  email: string;
+  phone?: string;
+  service_interest?: string;
+  message: string;
+}
+
 export default function ContactSubmissions() {
-  const [submissions, setSubmissions] = useState<ContactSubmission[]>([]);
-
-  useEffect(() => {
-    loadSubmissions();
-  }, []);
-
-  const loadSubmissions = async () => {
-    const { data } = await supabase
-      .from('contact_submissions')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (data) setSubmissions(data);
-  };
+  const [submissions, setSubmissions] = useState<ContactSubmission[]>([
+    {
+      id: '1',
+      created_at: new Date().toISOString(),
+      name: 'John Doe',
+      email: 'john@example.com',
+      phone: '+1234567890',
+      service_interest: 'Web Development',
+      message: 'I am interested in your web development services.'
+    },
+    {
+      id: '2',
+      created_at: new Date().toISOString(),
+      name: 'Jane Smith',
+      email: 'jane@example.com',
+      service_interest: 'UI/UX Design',
+      message: 'Can you help with UI/UX design for my startup?'
+    }
+  ]);
 
   const handleDelete = async (id: string) => {
-    // Automatically confirm deletion instead of prompting user
-    const { error } = await supabase.from('contact_submissions').delete().eq('id', id);
-    if (error) {
-      toast.error('Error deleting submission: ' + error.message);
-    } else {
-      toast.success('Submission deleted successfully');
-      loadSubmissions();
-    }
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Remove the submission from state
+    setSubmissions(submissions.filter(submission => submission.id !== id));
+    toast.success('Submission deleted successfully');
   };
 
   const formatDate = (dateString: string) => {

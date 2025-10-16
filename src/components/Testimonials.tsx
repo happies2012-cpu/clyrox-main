@@ -3,7 +3,17 @@ import { Star } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from './ui/carousel';
 import GlassCard from './GlassCard';
 import AnimatedSection from './AnimatedSection';
-import { supabase, Testimonial } from '../lib/supabase';
+
+// Define the Testimonial interface locally
+interface Testimonial {
+  id: string;
+  created_at: string;
+  name: string;
+  title: string;
+  quote: string;
+  rating: number;
+  is_active: boolean;
+}
 
 export default function Testimonials() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
@@ -13,12 +23,65 @@ export default function Testimonials() {
   }, []);
 
   const loadTestimonials = async () => {
-    const { data } = await supabase
-      .from('testimonials')
-      .select('*')
-      .eq('is_active', true)
-      .order('created_at', { ascending: false });
-    if (data) setTestimonials(data);
+    // Simulate loading testimonials without Supabase
+    const mockTestimonials: Testimonial[] = [
+      {
+        id: '1',
+        created_at: '2023-06-15',
+        name: 'John Smith',
+        title: 'CEO, TechCorp',
+        quote: 'Working with Clyrox transformed our business operations. Their strategic insights helped us increase revenue by 40% in just six months.',
+        rating: 5,
+        is_active: true
+      },
+      {
+        id: '2',
+        created_at: '2023-05-20',
+        name: 'Sarah Johnson',
+        title: 'HR Director, Global Solutions',
+        quote: 'The employment consulting services were exceptional. They helped us build a world-class team that drives innovation daily.',
+        rating: 5,
+        is_active: true
+      },
+      {
+        id: '3',
+        created_at: '2023-04-10',
+        name: 'Michael Chen',
+        title: 'Founder, StartupX',
+        quote: 'Their visa consulting expertise made our international expansion seamless. Highly recommended for any business going global.',
+        rating: 4,
+        is_active: true
+      },
+      {
+        id: '4',
+        created_at: '2023-03-05',
+        name: 'Emily Rodriguez',
+        title: 'Marketing VP, BrandCorp',
+        quote: 'The digital marketing strategies implemented by Clyrox increased our online visibility and customer engagement significantly.',
+        rating: 5,
+        is_active: true
+      },
+      {
+        id: '5',
+        created_at: '2023-02-18',
+        name: 'David Wilson',
+        title: 'Operations Manager, LogisticsPlus',
+        quote: 'Their staffing services provided us with top-tier talent that perfectly matched our company culture and requirements.',
+        rating: 4,
+        is_active: true
+      },
+      {
+        id: '6',
+        created_at: '2023-01-30',
+        name: 'Lisa Thompson',
+        title: 'CTO, InnovateTech',
+        quote: 'The design and development team delivered beyond our expectations. Our new platform has received outstanding user feedback.',
+        rating: 5,
+        is_active: true
+      }
+    ];
+    
+    setTestimonials(mockTestimonials);
   };
 
   if (testimonials.length === 0) {
@@ -47,7 +110,7 @@ export default function Testimonials() {
               {testimonials.map((testimonial) => (
                 <CarouselItem key={testimonial.id} className="md:basis-1/2 lg:basis-1/3">
                   <div className="p-4 h-full">
-                    <GlassCard className="p-8 h-full flex flex-col justify-between" hover={false}>
+                    <GlassCard className="p-8 h-full flex flex-col justify-between">
                       <div>
                         <div className="flex items-center mb-4">
                           {Array.from({ length: 5 }).map((_, i) => (

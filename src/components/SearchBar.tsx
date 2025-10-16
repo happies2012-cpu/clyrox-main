@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Search, X } from 'lucide-react';
-import { supabase } from '../lib/supabase';
 
 interface SearchResult {
   id: string;
@@ -36,54 +35,27 @@ export default function SearchBar() {
     setLoading(true);
     
     try {
-      // Search services
-      const { data: servicesData, error: servicesError } = await supabase
-        .from('services')
-        .select('id, title, slug')
-        .ilike('title', `%${query}%`)
-        .eq('is_active', true)
-        .limit(3);
-
-      // Search blog posts
-      const { data: blogData, error: blogError } = await supabase
-        .from('blog_posts')
-        .select('id, title, slug')
-        .ilike('title', `%${query}%`)
-        .eq('is_published', true)
-        .limit(3);
-
-      // Search careers
-      const { data: careersData, error: careersError } = await supabase
-        .from('careers')
-        .select('id, title')
-        .ilike('title', `%${query}%`)
-        .eq('is_active', true)
-        .limit(3);
-
-      if (!servicesError && !blogError && !careersError) {
-        const serviceResults = servicesData?.map(item => ({
-          id: item.id,
-          title: item.title,
-          type: 'service' as const,
-          url: `/services/${item.slug}`
-        })) || [];
-
-        const blogResults = blogData?.map(item => ({
-          id: item.id,
-          title: item.title,
-          type: 'blog' as const,
-          url: `/blog/${item.slug}`
-        })) || [];
-
-        const careerResults = careersData?.map(item => ({
-          id: item.id,
-          title: item.title,
-          type: 'career' as const,
-          url: `/career/${item.id}`
-        })) || [];
-
-        setResults([...serviceResults, ...blogResults, ...careerResults]);
-      }
+      // Simulate search without Supabase
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Mock search results
+      const mockResults: SearchResult[] = [
+        { id: '1', title: 'Business Consulting', type: 'service', url: '/services/business-consulting' },
+        { id: '2', title: 'Employment Consulting', type: 'service', url: '/services/employment-consulting' },
+        { id: '3', title: 'Visa Consulting', type: 'service', url: '/services/visa-consulting' },
+        { id: '4', title: '10 Proven Business Growth Strategies', type: 'blog', url: '/blog/business-growth-strategies' },
+        { id: '5', title: 'Digital Transformation Guide', type: 'blog', url: '/blog/digital-transformation' },
+        { id: '6', title: 'Senior Business Consultant', type: 'career', url: '/career/1' },
+        { id: '7', title: 'HR Specialist', type: 'career', url: '/career/2' },
+        { id: '8', title: 'Software Developer', type: 'career', url: '/career/3' }
+      ];
+      
+      // Filter results based on query
+      const filteredResults = mockResults.filter(item => 
+        item.title.toLowerCase().includes(query.toLowerCase())
+      );
+      
+      setResults(filteredResults);
     } catch (error) {
       console.error('Search error:', error);
     } finally {

@@ -1,54 +1,103 @@
-import { NavLink, Outlet } from 'react-router-dom';
-import { LayoutGrid, FileText, Briefcase, Users, MessageSquare, Award, Mail, User, Shield, BarChart2 } from 'lucide-react';
+import { useState } from 'react';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-
-const sidebarNavItems = [
-  { href: '/admin/dashboard', icon: BarChart2, label: 'Dashboard' },
-  { href: '/admin/services', icon: Briefcase, label: 'Services' },
-  { href: '/admin/blog', icon: FileText, label: 'Blog' },
-  { href: '/admin/careers', icon: Users, label: 'Careers' },
-  { href: '/admin/testimonials', icon: Award, label: 'Testimonials' },
-  { href: '/admin/submissions', icon: MessageSquare, label: 'Submissions' },
-  { href: '/admin/newsletter', icon: Mail, label: 'Newsletter' },
-  { href: '/admin/users', icon: User, label: 'Users' },
-];
+import { motion } from 'framer-motion';
+import { X, LayoutDashboard, Briefcase, FileText, Users, MessageCircle, Star, Mail, Settings, User, LogOut } from 'lucide-react';
 
 export default function AdminLayout() {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  const navigation = [
+    { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
+    { name: 'Services', href: '/admin/services', icon: Briefcase },
+    { name: 'Blog', href: '/admin/blog', icon: FileText },
+    { name: 'Careers', href: '/admin/careers', icon: Users },
+    { name: 'Testimonials', href: '/admin/testimonials', icon: Star },
+    { name: 'Submissions', href: '/admin/submissions', icon: MessageCircle },
+    { name: 'Newsletter', href: '/admin/newsletter', icon: Mail },
+    { name: 'Users', href: '/admin/users', icon: User },
+  ];
+
+  const handleLogout = () => {
+    // Simply navigate to home page
+    navigate('/');
+  };
 
   return (
-    <div className="min-h-screen pt-24 bg-gradient-to-b from-slate-900 to-slate-800">
-      <div className="max-w-7xl mx-auto px-6 pb-12">
-        <div className="flex flex-col md:flex-row gap-8">
-          <aside className="md:w-64 flex-shrink-0">
-            <div className="p-6 backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl sticky top-24">
-              <div className="text-center mb-6">
-                <h2 className="text-xl font-bold text-white">Admin Panel</h2>
-                <p className="text-sm text-white/60 truncate">{user?.email || 'Admin User'}</p>
-              </div>
-              <nav className="flex flex-col gap-2">
-                {sidebarNavItems.map((item) => (
-                  <NavLink
-                    key={item.href}
-                    to={item.href}
-                    className={({ isActive }) =>
-                      `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                        isActive
-                          ? 'bg-white/20 text-white'
-                          : 'text-white/70 hover:bg-white/10 hover:text-white'
-                      }`
-                    }
+    <div className="flex h-[calc(100vh-6rem)]">
+      {/* Sidebar */}
+      <motion.div
+        className={`bg-slate-800/50 backdrop-blur-xl border-r border-white/10 ${
+          sidebarOpen ? 'w-64' : 'w-20'
+        } transition-all duration-300 flex flex-col`}
+        initial={{ x: -100, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="p-4 border-b border-white/10 flex items-center justify-between">
+          {sidebarOpen && (
+            <h2 className="text-xl font-bold text-white">Admin Panel</h2>
+          )}
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+          >
+            <X className={`w-5 h-5 text-white ${sidebarOpen ? '' : 'rotate-45'}`} />
+          </button>
+        </div>
+        
+        <nav className="flex-1 p-4">
+          <ul className="space-y-2">
+            {navigation.map((item) => {
+              const Icon = item.icon;
+              return (
+                <li key={item.name}>
+                  <a
+                    href={item.href}
+                    className="flex items-center gap-3 p-3 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors"
                   >
-                    <item.icon className="w-5 h-5" />
-                    {item.label}
-                  </NavLink>
-                ))}
-              </nav>
+                    <Icon className="w-5 h-5" />
+                    {sidebarOpen && <span>{item.name}</span>}
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+        
+        <div className="p-4 border-t border-white/10">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="bg-primary/20 w-10 h-10 rounded-full flex items-center justify-center">
+              <span className="text-primary-light font-bold">
+                {user?.email?.charAt(0).toUpperCase() || 'A'}
+              </span>
             </div>
-          </aside>
-          <main className="flex-grow">
-            <Outlet />
-          </main>
+            {sidebarOpen && (
+              <div>
+                <p className="text-white font-medium text-sm">Admin</p>
+                <p className="text-white/50 text-xs">{user?.email || 'admin@example.com'}</p>
+              </div>
+            )}
+          </div>
+          
+          {sidebarOpen && (
+            <button
+              onClick={handleLogout}
+              className="w-full py-2 px-4 bg-red-500/20 hover:bg-red-500/30 text-red-300 rounded-lg transition-colors text-sm font-medium flex items-center gap-2"
+            >
+              <LogOut className="w-4 h-4" />
+              Logout
+            </button>
+          )}
+        </div>
+      </motion.div>
+
+      {/* Main content */}
+      <div className="flex-1 overflow-auto">
+        <div className="p-6">
+          <Outlet />
         </div>
       </div>
     </div>
