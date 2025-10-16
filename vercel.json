@@ -38,6 +38,7 @@
   "devCommand": "npm run dev",
   "installCommand": "npm install"
 }
+
 {
   "headers": [
     {
@@ -51,15 +52,3 @@
     }
   ]
 }
-```
-
-## 3. **Check Bot Protection Settings**
-- In Vercel Firewall settings, look for "Bot Protection"
-- Disable or adjust sensitivity if it's blocking legitimate AI bots
-- Whitelist specific user agents if needed
-
-## 4. **Update robots.txt**
-Create or update your `public/robots.txt` file:
-```
-User-agent: *
-Allow: /
