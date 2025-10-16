@@ -38,28 +38,12 @@ export default function ToasterProvider() {
             secondary: '#ef4444',
           },
         },
-        warning: {
+        blank: {
           style: {
             background: 'rgba(202, 138, 4, 0.9)',
             color: '#fffbeb',
             border: '1px solid rgba(161, 98, 7, 0.7)',
             backdropFilter: 'blur(10px)',
-          },
-          iconTheme: {
-            primary: '#fffbeb',
-            secondary: '#f59e0b',
-          },
-        },
-        info: {
-          style: {
-            background: 'rgba(59, 130, 246, 0.9)',
-            color: '#eff6ff',
-            border: '1px solid rgba(37, 99, 235, 0.7)',
-            backdropFilter: 'blur(10px)',
-          },
-          iconTheme: {
-            primary: '#eff6ff',
-            secondary: '#3b82f6',
           },
         },
         duration: 5000,
