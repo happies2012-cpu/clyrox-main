@@ -33,7 +33,7 @@ A comprehensive business consulting platform with enhanced UI animations and rea
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/Clyrox-main.git
+   git clone https://github.com/happies2012-cpu/clyrox-main.git
    ```
 
 2. Navigate to the project directory:
