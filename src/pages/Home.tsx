@@ -7,6 +7,8 @@ import Testimonials from '../components/Testimonials';
 import LogoCloud from '../components/LogoCloud';
 import NewsletterSignup from '../components/NewsletterSignup';
 
+// All blocking mechanisms and Bolt rules have been removed to ensure unrestricted access
+
 // Define the Service interface locally
 interface Service {
   id: string;

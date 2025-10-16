@@ -16,14 +16,9 @@ interface AuthContextType {
   isAuthorized: () => boolean;
 }
 
+// Simplified context with all permissions granted
 const AuthContext = createContext<AuthContextType>({
-  user: {
-    id: 'open-access-user',
-    email: 'open@clyrox.com',
-    app_metadata: {
-      role: 'admin'
-    }
-  },
+  user: null,
   loading: false,
   isAdmin: true,
   isAuthorized: () => true,
@@ -31,13 +26,7 @@ const AuthContext = createContext<AuthContextType>({
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const value = {
-    user: {
-      id: 'open-access-user',
-      email: 'open@clyrox.com',
-      app_metadata: {
-        role: 'admin'
-      }
-    },
+    user: null,
     loading: false,
     isAdmin: true,
     isAuthorized: () => true,
@@ -47,9 +36,5 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 };
 
 export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+  return useContext(AuthContext);
 };
