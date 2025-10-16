@@ -3,6 +3,7 @@ import { ArrowRight, Search } from 'lucide-react';
 import PageHero from '../components/PageHero';
 import AnimatedSection from '../components/AnimatedSection';
 import GlassCard from '../components/GlassCard';
+import EnhancedServiceCard from '../components/EnhancedServiceCard';
 import { supabase, Service } from '../lib/supabase';
 import { motion } from 'framer-motion';
 
@@ -103,48 +104,16 @@ export default function Services() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredServices.map((service, index) => (
-                <AnimatedSection key={service.id} delay={index * 0.1}>
-                  <motion.div
-                    whileHover={{ y: -10, scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                  >
-                    <GlassCard className="p-8 h-full flex flex-col overflow-hidden">
-                      <div className="overflow-hidden rounded-xl mb-6 -mx-8 -mt-8">
-                        <motion.img
-                          src={service.hero_image || "https://images.pexels.com/photos/3184325/pexels-photo-3184325.jpeg?auto=compress&cs=tinysrgb&w=1920"}
-                          alt={service.title}
-                          className="w-full h-48 object-cover"
-                          whileHover={{ scale: 1.1 }}
-                          transition={{ duration: 0.5 }}
-                        />
-                      </div>
-                      <h3 className="text-2xl font-bold text-white mb-3">{service.title}</h3>
-                      <p className="text-white/60 mb-4">{service.subtitle}</p>
-                      <p className="text-white/70 mb-6 flex-grow line-clamp-3">{service.description}</p>
-
-                      {service.features && service.features.length > 0 && (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-                          {service.features.slice(0, 4).map((feature, idx) => (
-                            <div key={idx} className="flex items-start gap-2">
-                              <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0"></div>
-                              <span className="text-sm text-white/80">{feature.title}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      <motion.a
-                        href={`/services/${service.slug}`}
-                        className="inline-flex items-center gap-2 text-white hover:gap-4 transition-all font-semibold mt-auto"
-                        whileHover={{ x: 5 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        Learn More <ArrowRight className="w-5 h-5" />
-                      </motion.a>
-                    </GlassCard>
-                  </motion.div>
-                </AnimatedSection>
+                <EnhancedServiceCard
+                  key={service.id}
+                  id={service.id}
+                  title={service.title}
+                  subtitle={service.subtitle}
+                  description={service.description}
+                  hero_image={service.hero_image}
+                  slug={service.slug}
+                  delay={index * 0.1}
+                />
               ))}
             </div>
           )}

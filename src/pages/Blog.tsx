@@ -5,6 +5,8 @@ import AnimatedSection from '../components/AnimatedSection';
 import GlassCard from '../components/GlassCard';
 import { supabase, BlogPost } from '../lib/supabase';
 import { motion } from 'framer-motion';
+import EnhancedBlogCard from '../components/EnhancedBlogCard';
+import EnhancedLoadingSpinner from '../components/EnhancedLoadingSpinner';
 
 export default function Blog() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -97,91 +99,32 @@ export default function Blog() {
           </div>
 
           {loading ? (
-            <AnimatedSection>
-              <div className="flex justify-center items-center h-64">
-                <div className="text-white">Loading blog posts...</div>
-              </div>
-            </AnimatedSection>
+            <div className="flex justify-center items-center h-64">
+              <EnhancedLoadingSpinner type="pulse" size="md" color="text-white" message="Loading blog posts..." />
+            </div>
           ) : filteredPosts.length === 0 ? (
-            <AnimatedSection>
-              <GlassCard className="p-12 text-center">
-                <p className="text-xl text-white/70">
-                  {searchQuery || selectedCategory !== 'all' 
-                    ? 'No blog posts found matching your criteria. Try adjusting your search or filters.' 
-                    : 'No blog posts available at the moment.'}
-                </p>
-              </GlassCard>
-            </AnimatedSection>
+            <GlassCard className="p-12 text-center">
+              <p className="text-xl text-white/70">
+                {searchQuery 
+                  ? 'No posts found matching your search. Try different keywords.' 
+                  : 'No blog posts available at the moment.'}
+              </p>
+            </GlassCard>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredPosts.map((post, index) => (
-                <AnimatedSection key={post.id} delay={index * 0.05}>
-                  <motion.div
-                    whileHover={{ y: -10, scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                  >
-                    <GlassCard className="overflow-hidden h-full flex flex-col">
-                      {post.featured_image && (
-                        <div className="h-48 overflow-hidden">
-                          <motion.img
-                            src={post.featured_image}
-                            alt={post.title}
-                            className="w-full h-full object-cover transition-transform"
-                            whileHover={{ scale: 1.1 }}
-                            transition={{ duration: 0.5 }}
-                          />
-                        </div>
-                      )}
-                      <div className="p-6 flex-grow flex flex-col">
-                        {post.category && (
-                          <div className="flex items-center gap-2 mb-3">
-                            <Tag className="w-4 h-4 text-white/60" />
-                            <span className="text-sm text-white/60">{post.category}</span>
-                          </div>
-                        )}
-                        <motion.h3 
-                          className="text-2xl font-bold text-white mb-3 line-clamp-2"
-                          initial={{ opacity: 0, y: 10 }}
-                          whileInView={{ opacity: 1, y: 0 }}
-                          viewport={{ once: true }}
-                          transition={{ delay: 0.1 }}
-                        >
-                          {post.title}
-                        </motion.h3>
-                        {post.excerpt && (
-                          <motion.p 
-                            className="text-white/70 mb-4 flex-grow line-clamp-3"
-                            initial={{ opacity: 0, y: 10 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: 0.2 }}
-                          >
-                            {post.excerpt}
-                          </motion.p>
-                        )}
-                        <div className="flex items-center justify-between text-sm text-white/60 mb-4">
-                          <div className="flex items-center gap-2">
-                            <User className="w-4 h-4" />
-                            <span>{post.author}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Calendar className="w-4 h-4" />
-                            <span>{formatDate(post.published_at)}</span>
-                          </div>
-                        </div>
-                        <motion.a
-                          href={`/blog/${post.slug}`}
-                          className="inline-flex items-center gap-2 text-white hover:gap-4 transition-all font-semibold"
-                          whileHover={{ x: 5 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          Read More <ArrowRight className="w-4 h-4" />
-                        </motion.a>
-                      </div>
-                    </GlassCard>
-                  </motion.div>
-                </AnimatedSection>
+                <EnhancedBlogCard
+                  key={post.id}
+                  id={post.id}
+                  title={post.title}
+                  excerpt={post.excerpt}
+                  author={post.author}
+                  published_at={post.published_at}
+                  category={post.category}
+                  featured_image={post.featured_image}
+                  slug={post.slug}
+                  delay={index * 0.1}
+                />
               ))}
             </div>
           )}

@@ -26,6 +26,24 @@
     window.location.replace(httpUrl);
   }
   
+  // Prevent any future attempts to switch to HTTPS
+  const originalPushState = history.pushState;
+  const originalReplaceState = history.replaceState;
+  
+  history.pushState = function(state, title, url) {
+    if (typeof url === 'string' && url.startsWith('https://')) {
+      url = url.replace('https://', 'http://');
+    }
+    return originalPushState.call(this, state, title, url);
+  };
+  
+  history.replaceState = function(state, title, url) {
+    if (typeof url === 'string' && url.startsWith('https://')) {
+      url = url.replace('https://', 'http://');
+    }
+    return originalReplaceState.call(this, state, title, url);
+  };
+  
   console.log('HTTPS prevention loaded: Redirecting to HTTP if needed');
 })();
 

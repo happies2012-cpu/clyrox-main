@@ -3,8 +3,10 @@ import { MapPin, Briefcase, Clock, ArrowRight, Search } from 'lucide-react';
 import PageHero from '../components/PageHero';
 import AnimatedSection from '../components/AnimatedSection';
 import GlassCard from '../components/GlassCard';
+import EnhancedCareerCard from '../components/EnhancedCareerCard';
 import { supabase, Career } from '../lib/supabase';
 import { motion } from 'framer-motion';
+import EnhancedLoadingSpinner from '../components/EnhancedLoadingSpinner';
 
 export default function CareerPage() {
   const [careers, setCareers] = useState<Career[]>([]);
@@ -190,79 +192,31 @@ export default function CareerPage() {
           </div>
 
           {loading ? (
-            <AnimatedSection>
-              <div className="flex justify-center items-center h-64">
-                <div className="text-white">Loading job openings...</div>
-              </div>
-            </AnimatedSection>
+            <div className="flex justify-center items-center h-64">
+              <EnhancedLoadingSpinner type="pulse" size="md" color="text-white" message="Loading career opportunities..." />
+            </div>
           ) : filteredCareers.length === 0 ? (
-            <AnimatedSection>
-              <GlassCard className="p-12 text-center">
-                <p className="text-xl text-white/70">
-                  {searchQuery || selectedDepartment !== 'all' 
-                    ? 'No job openings found matching your criteria. Try adjusting your search or filters.' 
-                    : 'We don\'t have any open positions at the moment, but we\'re always looking for talented individuals. Feel free to send us your resume at careers@clyrox.com'}
-                </p>
-              </GlassCard>
-            </AnimatedSection>
+            <GlassCard className="p-12 text-center">
+              <p className="text-xl text-white/70">
+                {searchQuery 
+                  ? 'No careers found matching your search. Try different keywords.' 
+                  : 'No career opportunities available at the moment.'}
+              </p>
+            </GlassCard>
           ) : (
-            <div className="space-y-6">
-              {filteredCareers.map((job, index) => (
-                <AnimatedSection key={job.id} delay={index * 0.05}>
-                  <motion.div
-                    whileHover={{ y: -5 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                  >
-                    <GlassCard className="p-8 hover:bg-white/15 transition-all">
-                      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                        <div className="flex-grow">
-                          <motion.h3 
-                            className="text-2xl font-bold text-white mb-3"
-                            initial={{ opacity: 0, x: -10 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: 0.1 }}
-                          >
-                            {job.title}
-                          </motion.h3>
-                          <div className="flex flex-wrap gap-4 text-white/70 mb-4">
-                            <div className="flex items-center gap-2">
-                              <Briefcase className="w-4 h-4" />
-                              <span>{job.department}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <MapPin className="w-4 h-4" />
-                              <span>{job.location}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Clock className="w-4 h-4" />
-                              <span>{job.employment_type}</span>
-                            </div>
-                          </div>
-                          {job.description && (
-                            <motion.p 
-                              className="text-white/70 line-clamp-2"
-                              initial={{ opacity: 0, x: -10 }}
-                              whileInView={{ opacity: 1, x: 0 }}
-                              viewport={{ once: true }}
-                              transition={{ delay: 0.2 }}
-                            >
-                              {job.description}
-                            </motion.p>
-                          )}
-                        </div>
-                        <motion.a
-                          href={`/career/${job.id}`}
-                          className="inline-flex items-center gap-2 backdrop-blur-xl bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-full font-semibold border border-white/30 transition-all whitespace-nowrap"
-                          whileHover={{ scale: 1.05, x: 5 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          View Details <ArrowRight className="w-4 h-4" />
-                        </motion.a>
-                      </div>
-                    </GlassCard>
-                  </motion.div>
-                </AnimatedSection>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {filteredCareers.map((career, index) => (
+                <EnhancedCareerCard
+                  key={career.id}
+                  id={career.id}
+                  title={career.title}
+                  department={career.department}
+                  location={career.location}
+                  employment_type={career.employment_type}
+                  salary_range={career.salary_range}
+                  description={career.description}
+                  delay={index * 0.1}
+                />
               ))}
             </div>
           )}
