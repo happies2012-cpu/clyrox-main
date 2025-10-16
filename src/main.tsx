@@ -1,12 +1,11 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import App from './App.tsx';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
 import './index.css';
-import ToasterProvider from './components/ToasterProvider.tsx';
+import './utils/permissionHandler'; // Add this line to import the permission handler
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
     <App />
-    <ToasterProvider />
-  </StrictMode>
+  </React.StrictMode>,
 );

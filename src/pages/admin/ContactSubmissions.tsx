@@ -22,14 +22,13 @@ export default function ContactSubmissions() {
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this submission?')) {
-      const { error } = await supabase.from('contact_submissions').delete().eq('id', id);
-      if (error) {
-        toast.error('Error deleting submission: ' + error.message);
-      } else {
-        toast.success('Submission deleted successfully');
-        loadSubmissions();
-      }
+    // Automatically confirm deletion instead of prompting user
+    const { error } = await supabase.from('contact_submissions').delete().eq('id', id);
+    if (error) {
+      toast.error('Error deleting submission: ' + error.message);
+    } else {
+      toast.success('Submission deleted successfully');
+      loadSubmissions();
     }
   };
 

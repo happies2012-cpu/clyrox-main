@@ -1,8 +1,7 @@
-import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const AdminRoute = ({ children }: { children: JSX.Element }) => {
-  const { user, isAdmin, loading } = useAuth();
+  const { loading } = useAuth();
 
   if (loading) {
     return (
@@ -12,14 +11,7 @@ const AdminRoute = ({ children }: { children: JSX.Element }) => {
     );
   }
 
-  if (!user) {
-    return <Navigate to="/login" />;
-  }
-
-  if (!isAdmin) {
-    return <Navigate to="/dashboard" />;
-  }
-
+  // Allow access to all routes without authentication
   return children;
 };
 

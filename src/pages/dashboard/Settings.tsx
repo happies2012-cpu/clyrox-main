@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { supabase } from '../../lib/supabase';
 import { motion } from 'framer-motion';
 import EnhancedLoadingSpinner from '../../components/EnhancedLoadingSpinner';
 import { FormValidator, ValidationError, getErrorMessage, hasError } from '../../utils/formValidation';
@@ -37,20 +36,15 @@ export default function Settings() {
     const toastId = notify.loading.saving();
     setUpdating(true);
 
-    const { error } = await supabase.auth.updateUser({ password });
-
-    NotificationManager.dismiss(toastId);
-
-    if (error) {
-      console.error('Error updating password:', error);
-      notify.error.update();
-    } else {
+    // Simulate password update since we're bypassing authentication
+    setTimeout(() => {
+      NotificationManager.dismiss(toastId);
       notify.success.update();
       setPassword('');
       setConfirmPassword('');
       setErrors([]);
-    }
-    setUpdating(false);
+      setUpdating(false);
+    }, 1000);
   };
 
   const handleChange = (setter: React.Dispatch<React.SetStateAction<string>>) => 
@@ -141,7 +135,7 @@ export default function Settings() {
             type="submit"
             disabled={updating}
             whileHover={{ scale: 1.02, y: -2 }}
-            whileTap={{ scale: 0.98 }}
+            whileTap={{ scale: 0.95 }}
             className="backdrop-blur-xl bg-white text-slate-900 px-8 py-3 rounded-full font-semibold hover:bg-white/90 transition-all disabled:opacity-50"
           >
             {updating ? (

@@ -1,8 +1,7 @@
-import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
-  const { user, loading } = useAuth();
+  const { loading } = useAuth();
 
   if (loading) {
     return (
@@ -12,10 +11,7 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
     );
   }
 
-  if (!user) {
-    return <Navigate to="/login" />;
-  }
-
+  // Allow access to all routes without authentication
   return children;
 };
 

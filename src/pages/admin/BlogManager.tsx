@@ -18,14 +18,13 @@ export default function BlogManager() {
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this post?')) {
-      const { error } = await supabase.from('blog_posts').delete().eq('id', id);
-      if (error) {
-        toast.error('Error deleting post: ' + error.message);
-      } else {
-        toast.success('Post deleted successfully');
-        loadPosts();
-      }
+    // Automatically confirm deletion instead of prompting user
+    const { error } = await supabase.from('blog_posts').delete().eq('id', id);
+    if (error) {
+      toast.error('Error deleting post: ' + error.message);
+    } else {
+      toast.success('Post deleted successfully');
+      loadPosts();
     }
   };
 

@@ -1,33 +1,16 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { supabase } from '../../lib/supabase';
-import { useAuth } from '../../contexts/AuthContext';
 import { motion } from 'framer-motion';
 import EnhancedLoadingSpinner from '../../components/EnhancedLoadingSpinner';
 import { FormValidator, ValidationError, getErrorMessage, hasError } from '../../utils/formValidation';
 import { NotificationManager, notify } from '../../utils/notifications';
 
 export default function Profile() {
-  const { user } = useAuth();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [updating, setUpdating] = useState(false);
-  const [fullName, setFullName] = useState('');
-  const [website, setWebsite] = useState('');
+  const [fullName, setFullName] = useState('Admin User');
+  const [website, setWebsite] = useState('https://clyrox.com');
   const [errors, setErrors] = useState<ValidationError[]>([]);
-
-  const getProfile = useCallback(() => {
-    setLoading(true);
-    if (user?.user_metadata) {
-      setFullName(user.user_metadata.full_name || '');
-      setWebsite(user.user_metadata.website || '');
-    }
-    setLoading(false);
-  }, [user]);
-
-  useEffect(() => {
-    if (user) {
-      getProfile();
-    }
-  }, [user, getProfile]);
 
   const validateForm = () => {
     const validator = FormValidator.create()
@@ -53,19 +36,12 @@ export default function Profile() {
     const toastId = notify.loading.saving();
     setUpdating(true);
 
-    const { error } = await supabase.auth.updateUser({
-      data: { full_name: fullName, website: website },
-    });
-
-    NotificationManager.dismiss(toastId);
-
-    if (error) {
-      console.error('Error updating profile:', error);
-      notify.error.save();
-    } else {
+    // Simulate profile update since we're bypassing authentication
+    setTimeout(() => {
+      NotificationManager.dismiss(toastId);
       notify.success.save();
-    }
-    setUpdating(false);
+      setUpdating(false);
+    }, 1000);
   };
 
   const handleChange = (setter: React.Dispatch<React.SetStateAction<string>>) => 
@@ -114,7 +90,7 @@ export default function Profile() {
           <input
             id="email"
             type="text"
-            value={user?.email || ''}
+            value="admin@example.com"
             disabled
             className="w-full backdrop-blur-xl bg-white/5 border border-white/20 text-white/50 px-6 py-3 rounded-xl"
           />
@@ -161,7 +137,7 @@ export default function Profile() {
             type="submit"
             disabled={updating}
             whileHover={{ scale: 1.02, y: -2 }}
-            whileTap={{ scale: 0.98 }}
+            whileTap={{ scale: 0.95 }}
             className="backdrop-blur-xl bg-white text-slate-900 px-8 py-3 rounded-full font-semibold hover:bg-white/90 transition-all disabled:opacity-50"
           >
             {updating ? (

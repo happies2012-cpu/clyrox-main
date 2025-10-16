@@ -20,14 +20,13 @@ export default function NewsletterManager() {
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this subscription?')) {
-      const { error } = await supabase.from('newsletter_subscriptions').delete().eq('id', id);
-      if (error) {
-        toast.error('Error deleting subscription: ' + error.message);
-      } else {
-        toast.success('Subscription deleted successfully');
-        loadSubscriptions();
-      }
+    // Automatically confirm deletion instead of prompting user
+    const { error } = await supabase.from('newsletter_subscriptions').delete().eq('id', id);
+    if (error) {
+      toast.error('Error deleting subscription: ' + error.message);
+    } else {
+      toast.success('Subscription deleted successfully');
+      loadSubscriptions();
     }
   };
 

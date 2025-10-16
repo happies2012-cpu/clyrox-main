@@ -15,16 +15,31 @@ const AuthContext = createContext<AuthContextType>({
   session: null,
   loading: true,
   isAdmin: false,
-  isAuthorized: () => false,
+  isAuthorized: () => true, // Changed default to always return true
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(true); // Changed default to true
 
   useEffect(() => {
+    // Simulate a logged-in admin user to bypass authentication
+    const simulateUser = {
+      id: 'simulated-user-id',
+      email: 'admin@example.com',
+      app_metadata: {
+        role: 'admin'
+      }
+    } as unknown as User;
+    
+    setUser(simulateUser);
+    setIsAdmin(true);
+    setLoading(false);
+
+    // Comment out the actual authentication logic
+    /*
     const getSession = async () => {
       const { data, error } = await supabase.auth.getSession();
       if (error) {
@@ -58,20 +73,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => {
       authListener.subscription.unsubscribe();
     };
+    */
   }, []);
 
   const isAuthorized = (requiredRole?: string): boolean => {
-    if (!user) return false;
-    
-    // If no specific role required, just check if user is logged in
-    if (!requiredRole) return true;
-    
-    // For admin role, check if user is admin
-    if (requiredRole === 'admin') {
-      return isAdmin;
-    }
-    
-    // For other roles, you can implement custom logic here
+    // Always return true to bypass authorization
     return true;
   };
 

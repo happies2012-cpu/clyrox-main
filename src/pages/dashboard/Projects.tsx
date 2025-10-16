@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabase';
-import { useAuth } from '../../contexts/AuthContext';
 import { motion } from 'framer-motion';
-import { Plus, Edit3, Trash2, Calendar, User } from 'lucide-react';
+import { Plus, Edit3, Trash2, Calendar } from 'lucide-react';
 import EnhancedLoadingSpinner from '../../components/EnhancedLoadingSpinner';
 import { NotificationManager, notify } from '../../utils/notifications';
 
@@ -16,7 +15,6 @@ interface Project {
 }
 
 export default function Projects() {
-  const { user } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -27,13 +25,11 @@ export default function Projects() {
   });
 
   const loadProjects = useCallback(async () => {
-    if (!user) return;
-    
+    // Load projects without user authentication
     setLoading(true);
     const { data, error } = await supabase
       .from('projects')
       .select('*')
-      .eq('user_id', user.id)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -43,21 +39,19 @@ export default function Projects() {
       setProjects(data || []);
     }
     setLoading(false);
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     loadProjects();
-  }, [user, loadProjects]);
+  }, [loadProjects]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
 
     const toastId = notify.loading.creating();
 
     const newProject = {
       ...formData,
-      user_id: user.id,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
@@ -215,7 +209,7 @@ export default function Projects() {
               <motion.button
                 type="submit"
                 whileHover={{ scale: 1.02, y: -2 }}
-                whileTap={{ scale: 0.98 }}
+                whileTap={{ scale: 0.95 }}
                 className="backdrop-blur-xl bg-white text-slate-900 px-4 py-2 rounded-lg font-semibold hover:bg-white/90 transition-all"
               >
                 Create Project
@@ -223,7 +217,7 @@ export default function Projects() {
               <motion.button
                 type="button"
                 whileHover={{ scale: 1.02, y: -2 }}
-                whileTap={{ scale: 0.98 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setShowForm(false)}
                 className="backdrop-blur-xl bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg font-semibold transition-all"
               >
@@ -251,7 +245,7 @@ export default function Projects() {
           </motion.p>
           <motion.button
             whileHover={{ scale: 1.02, y: -2 }}
-            whileTap={{ scale: 0.98 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => setShowForm(true)}
             className="backdrop-blur-xl bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg font-semibold transition-all"
           >

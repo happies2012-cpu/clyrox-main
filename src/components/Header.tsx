@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, LogOut } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import DarkModeToggle from './DarkModeToggle';
 import LanguageSelector from './LanguageSelector';
@@ -11,7 +10,7 @@ import SearchBar from './SearchBar';
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const { user } = useAuth();
+  const { isAdmin } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,9 +19,12 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate('/');
+  const handleDashboardClick = () => {
+    if (isAdmin) {
+      navigate('/admin/dashboard');
+    } else {
+      navigate('/dashboard');
+    }
   };
 
   const navItems = [
@@ -94,42 +96,13 @@ export default function Header() {
             <div className="hidden md:flex items-center gap-3">
               <LanguageSelector />
               <DarkModeToggle />
-              {user ? (
-                <>
-                  <a
-                    href="/dashboard"
-                    className="backdrop-blur-xl bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg font-semibold border border-white/20 transition-all focus:outline-none focus:ring-2 focus:ring-white/50"
-                    aria-label="Go to dashboard"
-                  >
-                    Dashboard
-                  </a>
-                  <button
-                    onClick={handleLogout}
-                    className="backdrop-blur-xl bg-red-500/20 hover:bg-red-500/30 text-white p-2 rounded-lg border border-red-500/30 transition-all focus:outline-none focus:ring-2 focus:ring-red-500/50"
-                    title="Logout"
-                    aria-label="Logout"
-                  >
-                    <LogOut className="w-5 h-5" />
-                  </button>
-                </>
-              ) : (
-                <>
-                  <a 
-                    href="/login" 
-                    className="text-white/90 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-white/50 rounded px-2 py-1"
-                    aria-label="Go to login page"
-                  >
-                    Login
-                  </a>
-                  <a
-                    href="/signup"
-                    className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-white/50"
-                    aria-label="Go to sign up page"
-                  >
-                    Sign Up
-                  </a>
-                </>
-              )}
+              <button
+                onClick={handleDashboardClick}
+                className="backdrop-blur-xl bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg font-semibold border border-white/20 transition-all focus:outline-none focus:ring-2 focus:ring-white/50"
+                aria-label="Go to dashboard"
+              >
+                Dashboard
+              </button>
             </div>
 
             <div className="flex items-center gap-2 md:hidden">
@@ -174,47 +147,16 @@ export default function Header() {
                 </a>
               ))}
               <div className="border-t border-white/20 pt-4 mt-2 flex flex-col gap-4">
-                {user ? (
-                  <>
-                    <a 
-                      href="/dashboard" 
-                      onClick={() => setIsOpen(false)} 
-                      className="text-white/90 hover:text-white transition-colors py-2 focus:outline-none focus:ring-2 focus:ring-white/50 rounded"
-                      aria-label="Go to dashboard"
-                    >
-                      Dashboard
-                    </a>
-                    <button 
-                      onClick={() => {
-                        handleLogout();
-                        setIsOpen(false);
-                      }} 
-                      className="text-left text-red-400 hover:text-red-300 transition-colors py-2 focus:outline-none focus:ring-2 focus:ring-red-500/50 rounded"
-                      aria-label="Logout"
-                    >
-                      Logout
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <a 
-                      href="/login" 
-                      onClick={() => setIsOpen(false)} 
-                      className="text-white/90 hover:text-white transition-colors py-2 focus:outline-none focus:ring-2 focus:ring-white/50 rounded"
-                      aria-label="Go to login page"
-                    >
-                      Login
-                    </a>
-                    <a 
-                      href="/signup" 
-                      onClick={() => setIsOpen(false)} 
-                      className="text-white/90 hover:text-white transition-colors py-2 focus:outline-none focus:ring-2 focus:ring-white/50 rounded"
-                      aria-label="Go to sign up page"
-                    >
-                      Sign Up
-                    </a>
-                  </>
-                )}
+                <button 
+                  onClick={() => {
+                    handleDashboardClick();
+                    setIsOpen(false);
+                  }} 
+                  className="text-white/90 hover:text-white transition-colors py-2 focus:outline-none focus:ring-2 focus:ring-white/50 rounded"
+                  aria-label="Go to dashboard"
+                >
+                  Dashboard
+                </button>
               </div>
             </nav>
           </motion.div>

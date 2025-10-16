@@ -18,14 +18,13 @@ export default function TestimonialsManager() {
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this testimonial?')) {
-      const { error } = await supabase.from('testimonials').delete().eq('id', id);
-      if (error) {
-        toast.error('Error deleting testimonial: ' + error.message);
-      } else {
-        toast.success('Testimonial deleted successfully');
-        loadTestimonials();
-      }
+    // Automatically confirm deletion instead of prompting user
+    const { error } = await supabase.from('testimonials').delete().eq('id', id);
+    if (error) {
+      toast.error('Error deleting testimonial: ' + error.message);
+    } else {
+      toast.success('Testimonial deleted successfully');
+      loadTestimonials();
     }
   };
 

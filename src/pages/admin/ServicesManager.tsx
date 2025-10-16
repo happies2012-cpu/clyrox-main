@@ -18,14 +18,13 @@ export default function ServicesManager() {
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this service?')) {
-      const { error } = await supabase.from('services').delete().eq('id', id);
-      if (error) {
-        toast.error('Error deleting service: ' + error.message);
-      } else {
-        toast.success('Service deleted successfully');
-        loadServices();
-      }
+    // Automatically confirm deletion instead of prompting user
+    const { error } = await supabase.from('services').delete().eq('id', id);
+    if (error) {
+      toast.error('Error deleting service: ' + error.message);
+    } else {
+      toast.success('Service deleted successfully');
+      loadServices();
     }
   };
 

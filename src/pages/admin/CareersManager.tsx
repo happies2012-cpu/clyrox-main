@@ -18,14 +18,13 @@ export default function CareersManager() {
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this job posting?')) {
-      const { error } = await supabase.from('careers').delete().eq('id', id);
-      if (error) {
-        toast.error('Error deleting job posting: ' + error.message);
-      } else {
-        toast.success('Job posting deleted successfully');
-        loadCareers();
-      }
+    // Automatically confirm deletion instead of prompting user
+    const { error } = await supabase.from('careers').delete().eq('id', id);
+    if (error) {
+      toast.error('Error deleting job posting: ' + error.message);
+    } else {
+      toast.success('Job posting deleted successfully');
+      loadCareers();
     }
   };
 

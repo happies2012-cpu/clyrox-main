@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
 import { motion } from 'framer-motion';
 import { TrendingUp, Users, FileText, Briefcase, Calendar } from 'lucide-react';
 import EnhancedLoadingSpinner from '../../components/EnhancedLoadingSpinner';
@@ -18,7 +17,6 @@ interface AnalyticsData {
 }
 
 export default function Analytics() {
-  const { user } = useAuth();
   const [analytics, setAnalytics] = useState<AnalyticsData>({
     totalProjects: 0,
     completedProjects: 0,
@@ -28,8 +26,6 @@ export default function Analytics() {
   const [loading, setLoading] = useState(true);
 
   const loadAnalytics = useCallback(async () => {
-    if (!user) return;
-    
     setLoading(true);
     
     try {
@@ -54,11 +50,11 @@ export default function Analytics() {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     loadAnalytics();
-  }, [user, loadAnalytics]);
+  }, [loadAnalytics]);
 
   const completionRate = analytics.totalProjects > 0 
     ? Math.round((analytics.completedProjects / analytics.totalProjects) * 100) 
